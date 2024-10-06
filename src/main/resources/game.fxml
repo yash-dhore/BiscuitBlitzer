@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<Pane xmlns:fx="http://javafx.com/fxml" fx:id="pane" styleClass="pane"
+      fx:controller="BiscuitBlitzer.GameController">
+    <Label fx:id="text" styleClass="text"/>
+    <Label fx:id="eventText" styleClass="text"/>
+
+    <Button fx:id="biscuitButton" styleClass="biscuit-button" onAction="#biscuitBlitzed">
+        <graphic>
+            <ImageView fx:id="imageView" fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@images/biscuit.png"/>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <Button fx:id="bps" styleClass="button" onAction="#onBPSClick"/>
+    <Button fx:id="multiplier" styleClass="button" onAction="#onMultiplierClick"/>
+
+    <Pane fx:id="transparentPane" styleClass="transparent-pane">
+        <Button fx:id="backToGame" text="Back to Game" styleClass="button" onAction="#handleEscapeKey"/>
+        <Button fx:id="optionsButton" text="Options" styleClass="button" onAction="#optionsScreen"/>
+        <Button fx:id="statsButton" text="Statistics" styleClass="button" onAction="#statsScreen"/>
+        <Button fx:id="quitButton" text="Save and Quit to Title" styleClass="button" onAction="#quitAndSave"/>
+    </Pane>
+
+    <Pane fx:id="optionsPane" styleClass="pane">
+        <Button fx:id="toggleDarkMode" text="Toggle Dark Mode" styleClass="button" onAction="#switchStylesheet"/>
+    </Pane>
+
+    <Pane fx:id="statsPane" styleClass="pane">
+        <Label fx:id="totalBiscuitStat" styleClass="text"/>
+        <Label fx:id="biscuitsClickedStat" styleClass="text"/>
+        <Label fx:id="totalTimeStat" styleClass="text"/>
+        <Label fx:id="timeOpenStat" styleClass="text"/>
+        <Label fx:id="totalTimeOpenStat" styleClass="text"/>
+        <Label fx:id="eventsTriggeredStat" styleClass="text"/>
+    </Pane>
+</Pane>
