@@ -2,12 +2,14 @@ package BiscuitBlitzer;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -154,68 +156,79 @@ public class GameController {
         eventsTriggeredStat.setText("Events triggered: " + formatNumber(eventsTriggered));
     }
 
+    private void setLayout(Region component, int xDiv, int yDiv) {
+        component.layoutXProperty().bind(pane.widthProperty().subtract(component.widthProperty()).divide(xDiv));
+        component.layoutYProperty().bind(pane.heightProperty().subtract(component.heightProperty()).divide(yDiv));
+    }
+
+    private void bindButton(Region button, double xDiv, double yDiv, DoubleBinding yOffset) {
+        button.layoutXProperty().bind(pane.widthProperty().subtract(button.widthProperty()).divide(xDiv));
+        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(yDiv).add(yOffset));
+    }
+    private void bindSideBySideButton(Region button, boolean left, double xDiv, double yDiv, DoubleBinding yOffset) {
+        if (left)
+            button.layoutXProperty().bind(pane.widthProperty().divide(xDiv).subtract(button.widthProperty()));
+        else
+            button.layoutXProperty().bind(pane.widthProperty().divide(xDiv));
+        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(yDiv).add(yOffset));
+    }
+
+    private void configureUpgradeButton(UpgradeButton upgradeButton, Button button, int upgradeCost, int value, String text) {
+        upgradeButton.setUpgradeCost(upgradeCost);
+        upgradeButton.setValue(value);
+        button.setText(text);
+        button.setFocusTraversable(false);
+    }
+
+    private void setStatLayout(Label stat, boolean add, int hMultiplier) {
+        stat.layoutXProperty().bind(
+                statsPane.widthProperty().subtract(stat.widthProperty()).divide(2)
+        );
+
+        var statVHeight = totalBiscuitStat.heightProperty();
+        var statVBase = statsPane.heightProperty().subtract(statVHeight).divide(2);
+
+        if (add) {
+            stat.layoutYProperty().bind(
+                    statVBase.add(statVHeight.multiply(hMultiplier))
+            );
+        }
+        else {
+            stat.layoutYProperty().bind(
+                    statVBase.subtract(statVHeight.multiply(hMultiplier))
+            );
+        }
+    }
+
     @FXML public void initialize() {
         startTime = Instant.now().getEpochSecond();
         sessionStartTime = startTime;
 
-        text.layoutXProperty().bind(
-                pane.widthProperty().subtract(text.widthProperty()).divide(2)
-        );
-        text.layoutYProperty().bind(
-                pane.heightProperty().subtract(text.heightProperty()).divide(100)
-        );
-
-        eventText.layoutXProperty().bind(
-                pane.widthProperty().subtract(eventText.widthProperty()).divide(2)
-        );
-        eventText.layoutYProperty().bind(
-                pane.heightProperty().subtract(eventText.heightProperty()).divide(25)
-        );
-
+        setLayout(text, 2, 100);
         text.setText("Biscuits: " + 0);
 
+        setLayout(eventText, 2, 25);
         updateStats(sessionStartTime);
 
-        pane.widthProperty().addListener((observable, oldValue, newValue) -> initialBiscuitPosition());
-        pane.heightProperty().addListener((observable, oldValue, newValue) -> initialBiscuitPosition());
+        pane.widthProperty().addListener((obs, oldVal, newVal) -> initialBiscuitPosition());
+        pane.heightProperty().addListener((obs, oldVal, newVal) -> initialBiscuitPosition());
 
         bpsNums = new UpgradeButton();
-        bpsNums.setUpgradeCost(25);
-        bpsNums.setValue(0);
-
-        bps.layoutXProperty().bind(
-                pane.widthProperty().subtract(bps.widthProperty()).divide(100)
-        );
-        bps.layoutYProperty().bind(
-                pane.heightProperty().subtract(bps.heightProperty()).divide(2).subtract(pane.heightProperty().divide(50))
-        );
-
-        bps.setText("Buy " + 1 + " BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
-        bps.setFocusTraversable(false);
+        configureUpgradeButton(bpsNums, bps,25, 0, "Buy 1 BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
+        bindButton(bps, 100, 2, pane.heightProperty().divide(50).multiply(-1));
 
         multiNums = new UpgradeButton();
-        multiNums.setUpgradeCost(100);
-        multiNums.setValue(1);
+        configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
+        bindButton(multiplier, 100, 2, pane.heightProperty().divide(50));
 
-        multiplier.layoutXProperty().bind(
-                pane.widthProperty().subtract(multiplier.widthProperty()).divide(100)
-        );
-        multiplier.layoutYProperty().bind(
-                pane.heightProperty().subtract(multiplier.heightProperty()).divide(2).add(pane.heightProperty().divide(50))
-        );
-
-        multiplier.setText("Buy " + 2 + "x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
-        multiplier.setFocusTraversable(false);
-
-        Timeline gameTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), event -> runEverySecond())
-        );
-
+        Timeline gameTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> runEverySecond()));
         gameTimeline.setCycleCount(Timeline.INDEFINITE);
         gameTimeline.play();
 
-        pane.heightProperty().addListener((observable, oldValue, newValue) -> setAdditionalPanes());
-        pane.heightProperty().addListener((observable, oldValue, newValue) -> checkForEscapeKey());
+        pane.heightProperty().addListener((obs, oldVal, newVal) -> {
+            setAdditionalPanes();
+            checkForEscapeKey();
+        });
     }
 
     private void setAdditionalPanes() {
@@ -224,93 +237,29 @@ public class GameController {
         statsPane.setVisible(false);
 
         Scene scene = transparentPane.getScene();
-
         transparentPane.prefWidthProperty().bind(scene.widthProperty());
         transparentPane.prefHeightProperty().bind(scene.heightProperty());
 
-        backToGame.layoutXProperty().bind(
-                transparentPane.widthProperty().subtract(backToGame.widthProperty()).divide(2)
-        );
-        backToGame.layoutYProperty().bind(
-                transparentPane.heightProperty().subtract(backToGame.heightProperty()).divide(2).subtract(transparentPane.heightProperty().divide(25))
-        );
-
-        optionsButton.layoutXProperty().bind(
-                transparentPane.widthProperty().divide(2).subtract(optionsButton.widthProperty())
-        );
-        optionsButton.layoutYProperty().bind(
-                transparentPane.heightProperty().subtract(optionsButton.heightProperty()).divide(2)
-        );
-
-        statsButton.layoutXProperty().bind(
-                transparentPane.widthProperty().divide(2)
-        );
-        statsButton.layoutYProperty().bind(
-                transparentPane.heightProperty().subtract(statsButton.heightProperty()).divide(2)
-        );
-
-        quitButton.layoutXProperty().bind(
-                transparentPane.widthProperty().subtract(quitButton.widthProperty()).divide(2)
-        );
-        quitButton.layoutYProperty().bind(
-                transparentPane.heightProperty().subtract(quitButton.heightProperty()).divide(2).add(transparentPane.heightProperty().divide(25))
-        );
+        bindButton(backToGame, 2, 2, transparentPane.heightProperty().divide(25).multiply(-1));
+        bindSideBySideButton(optionsButton, false, 2, 2, transparentPane.heightProperty().multiply(0));
+        bindSideBySideButton(statsButton, true, 2, 2, transparentPane.heightProperty().multiply(0));
+        bindButton(quitButton, 2, 2, transparentPane.heightProperty().divide(25));
 
         scene = optionsPane.getScene();
-
         optionsPane.prefWidthProperty().bind(scene.widthProperty());
         optionsPane.prefHeightProperty().bind(scene.heightProperty());
-
-        toggleDarkMode.layoutXProperty().bind(
-                transparentPane.widthProperty().subtract(toggleDarkMode.widthProperty()).divide(2)
-        );
-        toggleDarkMode.layoutYProperty().bind(
-                transparentPane.heightProperty().subtract(toggleDarkMode.heightProperty()).divide(2)
-        );
+        bindButton(toggleDarkMode, 2, 2, transparentPane.heightProperty().multiply(0));
 
         scene = statsPane.getScene();
-
         statsPane.prefWidthProperty().bind(scene.widthProperty());
         statsPane.prefHeightProperty().bind(scene.heightProperty());
 
-        var statVHeight = totalBiscuitStat.heightProperty();
-        var statVBase = statsPane.heightProperty().subtract(statVHeight).divide(2);
-
-        setStatX(totalBiscuitStat);
-        totalBiscuitStat.layoutYProperty().bind(
-                statVBase.subtract(statVHeight.multiply(5))
-        );
-
-        setStatX(biscuitsClickedStat);
-        biscuitsClickedStat.layoutYProperty().bind(
-                statVBase.subtract(statVHeight.multiply(3))
-        );
-
-        setStatX(totalTimeStat);
-        totalTimeStat.layoutYProperty().bind(
-                statVBase.subtract(statVHeight)
-        );
-
-        setStatX(timeOpenStat);
-        timeOpenStat.layoutYProperty().bind(
-                statVBase.add(statVHeight)
-        );
-
-        setStatX(totalTimeOpenStat);
-        totalTimeOpenStat.layoutYProperty().bind(
-                statVBase.add(statVHeight.multiply(3))
-        );
-
-        setStatX(eventsTriggeredStat);
-        eventsTriggeredStat.layoutYProperty().bind(
-                statVBase.add(statVHeight.multiply(5))
-        );
-    }
-
-    private void setStatX(Label stat) {
-        stat.layoutXProperty().bind(
-                statsPane.widthProperty().subtract(stat.widthProperty()).divide(2)
-        );
+        setStatLayout(totalBiscuitStat, false, 5);
+        setStatLayout(biscuitsClickedStat, false,3);
+        setStatLayout(totalTimeStat, false, 1);
+        setStatLayout(timeOpenStat, true, 1);
+        setStatLayout(totalTimeOpenStat, true,3);
+        setStatLayout(eventsTriggeredStat, true, 5);
     }
 
     private void checkForEscapeKey() {
