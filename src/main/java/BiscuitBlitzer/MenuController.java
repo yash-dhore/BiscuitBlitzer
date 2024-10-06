@@ -1,6 +1,7 @@
 package BiscuitBlitzer;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -158,6 +159,6 @@ public class MenuController {
     }
 
     @FXML protected void onQuitButtonClick() {
-        System.exit(0);
+        Platform.exit();
     }
 }
