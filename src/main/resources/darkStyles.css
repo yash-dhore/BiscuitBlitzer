@@ -1,5 +1,5 @@
 .biscuit-button {
-    -fx-background-color: transparent;
+    -fx-background-color: #1E1E1E;
     -fx-padding: 0;
     -fx-border-width: 0;
 }
@@ -13,9 +13,9 @@
 }
 
 .button {
-    -fx-background-color: #2C2C2C; /* Darker gray for button background */
-    -fx-text-fill: #F5F5F5; /* Light color for text */
-    -fx-border-color: #3C3C3C; /* Optional border color */
+    -fx-background-color: #2C2C2C;
+    -fx-text-fill: #F5F5F5;
+    -fx-border-color: #3C3C3C;
 }
 
 .transparent-pane {

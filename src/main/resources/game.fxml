@@ -29,6 +29,7 @@
 
     <Pane fx:id="optionsPane" styleClass="pane">
         <Button fx:id="toggleDarkMode" text="Toggle Dark Mode" styleClass="button" onAction="#switchStylesheet"/>
+        <ColorPicker fx:id="hexChooser"/>
     </Pane>
 
     <Pane fx:id="statsPane" styleClass="pane">

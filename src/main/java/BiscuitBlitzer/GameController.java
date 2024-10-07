@@ -6,6 +6,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
@@ -30,7 +31,7 @@ public class GameController {
     private static final int SECONDS_IN_AN_HOUR = 3600;
     private static final int SECONDS_IN_A_DAY = 86400;
 
-    @FXML public Button biscuitButton;
+    @FXML private Button biscuitButton;
     @FXML private Button bps;
     @FXML private Button multiplier;
     @FXML private Pane pane;
@@ -50,6 +51,7 @@ public class GameController {
     @FXML private Label timeOpenStat;
     @FXML private Label totalTimeOpenStat;
     @FXML private Label eventsTriggeredStat;
+    @FXML private ColorPicker hexChooser;
 
     private long numBiscuits = 0;
     private long totalBiscuits = 0;
@@ -229,6 +231,15 @@ public class GameController {
             setAdditionalPanes();
             checkForEscapeKey();
         });
+
+        hexChooser.setOnAction(e -> changePaneColors());
+    }
+
+    private void changePaneColors() {
+        optionsPane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
+        pane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
+        statsPane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
+        biscuitButton.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
     }
 
     private void setAdditionalPanes() {
@@ -511,7 +522,8 @@ public class GameController {
             if (darkMode) {
                 scene.getStylesheets().remove(style2);
                 scene.getStylesheets().add(style1);
-            } else {
+            }
+            else {
                 scene.getStylesheets().remove(style1);
                 scene.getStylesheets().add(style2);
             }
