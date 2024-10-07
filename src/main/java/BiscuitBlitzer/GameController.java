@@ -156,21 +156,21 @@ public class GameController {
         eventsTriggeredStat.setText("Events triggered: " + formatNumber(eventsTriggered));
     }
 
-    private void setLayout(Region component, int xDiv, int yDiv) {
-        component.layoutXProperty().bind(pane.widthProperty().subtract(component.widthProperty()).divide(xDiv));
+    private void setLayout(Region component, double yDiv) {
+        component.layoutXProperty().bind(pane.widthProperty().subtract(component.widthProperty()).divide(2.0));
         component.layoutYProperty().bind(pane.heightProperty().subtract(component.heightProperty()).divide(yDiv));
     }
 
-    private void bindButton(Region button, double xDiv, double yDiv, DoubleBinding yOffset) {
+    private void bindButton(Region button, double xDiv, DoubleBinding yOffset) {
         button.layoutXProperty().bind(pane.widthProperty().subtract(button.widthProperty()).divide(xDiv));
-        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(yDiv).add(yOffset));
+        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(2.0).add(yOffset));
     }
-    private void bindSideBySideButton(Region button, boolean left, double xDiv, double yDiv, DoubleBinding yOffset) {
+    private void bindSideBySideButton(Region button, boolean left, DoubleBinding yOffset) {
         if (left)
-            button.layoutXProperty().bind(pane.widthProperty().divide(xDiv).subtract(button.widthProperty()));
+            button.layoutXProperty().bind(pane.widthProperty().divide(2.0).subtract(button.widthProperty()));
         else
-            button.layoutXProperty().bind(pane.widthProperty().divide(xDiv));
-        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(yDiv).add(yOffset));
+            button.layoutXProperty().bind(pane.widthProperty().divide(2.0));
+        button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(2.0).add(yOffset));
     }
 
     private void configureUpgradeButton(UpgradeButton upgradeButton, Button button, int upgradeCost, int value, String text) {
@@ -204,10 +204,10 @@ public class GameController {
         startTime = Instant.now().getEpochSecond();
         sessionStartTime = startTime;
 
-        setLayout(text, 2, 100);
+        setLayout(text, 100);
         text.setText("Biscuits: " + 0);
 
-        setLayout(eventText, 2, 25);
+        setLayout(eventText, 25);
         updateStats(sessionStartTime);
 
         pane.widthProperty().addListener((obs, oldVal, newVal) -> initialBiscuitPosition());
@@ -215,11 +215,11 @@ public class GameController {
 
         bpsNums = new UpgradeButton();
         configureUpgradeButton(bpsNums, bps,25, 0, "Buy 1 BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
-        bindButton(bps, 100, 2, pane.heightProperty().divide(50).multiply(-1));
+        bindButton(bps, 100, pane.heightProperty().divide(50).multiply(-1));
 
         multiNums = new UpgradeButton();
         configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
-        bindButton(multiplier, 100, 2, pane.heightProperty().divide(50));
+        bindButton(multiplier, 100, pane.heightProperty().divide(50));
 
         Timeline gameTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> runEverySecond()));
         gameTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -240,15 +240,15 @@ public class GameController {
         transparentPane.prefWidthProperty().bind(scene.widthProperty());
         transparentPane.prefHeightProperty().bind(scene.heightProperty());
 
-        bindButton(backToGame, 2, 2, transparentPane.heightProperty().divide(25).multiply(-1));
-        bindSideBySideButton(optionsButton, false, 2, 2, transparentPane.heightProperty().multiply(0));
-        bindSideBySideButton(statsButton, true, 2, 2, transparentPane.heightProperty().multiply(0));
-        bindButton(quitButton, 2, 2, transparentPane.heightProperty().divide(25));
+        bindButton(backToGame, 2, transparentPane.heightProperty().divide(25).multiply(-1));
+        bindSideBySideButton(optionsButton, true, transparentPane.heightProperty().multiply(0));
+        bindSideBySideButton(statsButton, false, transparentPane.heightProperty().multiply(0));
+        bindButton(quitButton, 2, transparentPane.heightProperty().divide(25));
 
         scene = optionsPane.getScene();
         optionsPane.prefWidthProperty().bind(scene.widthProperty());
         optionsPane.prefHeightProperty().bind(scene.heightProperty());
-        bindButton(toggleDarkMode, 2, 2, transparentPane.heightProperty().multiply(0));
+        bindButton(toggleDarkMode, 2, transparentPane.heightProperty().multiply(0));
 
         scene = statsPane.getScene();
         statsPane.prefWidthProperty().bind(scene.widthProperty());
