@@ -11,14 +11,10 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class BiscuitBlitzer extends Application {
-    public static void main(String[] args) {
-        launch();
-    }
+    public static void main(String[] args) {launch();}
 
     @Override
-    public void start(Stage stage) throws IOException {
-        launchMenu(stage, "/lightStyles.css");
-    }
+    public void start(Stage stage) throws IOException {launchMenu(stage, "/lightStyles.css");}
 
     public static void launchMenu(Stage stage, String cssFile) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BiscuitBlitzer.class.getResource("/menu.fxml"));

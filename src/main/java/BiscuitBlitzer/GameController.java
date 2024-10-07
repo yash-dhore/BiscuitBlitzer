@@ -141,7 +141,8 @@ public class GameController {
             MenuController.showAlert("Passive income", "You made " + formatNumber(addedBiscuits) + " biscuits while you were away!", pane);
 
             bps.setText("Buy " + (bpsNums.getValue() * 2) + " BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
-        } else
+        }
+        else
             bps.setText("Buy " + 1 + " BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
 
         multiplier.setText("Buy " + (multiNums.getValue() + 1) + "x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
@@ -167,6 +168,7 @@ public class GameController {
         button.layoutXProperty().bind(pane.widthProperty().subtract(button.widthProperty()).divide(xDiv));
         button.layoutYProperty().bind(pane.heightProperty().subtract(button.heightProperty()).divide(2.0).add(yOffset));
     }
+
     private void bindSideBySideButton(Region button, boolean left, DoubleBinding yOffset) {
         if (left)
             button.layoutXProperty().bind(pane.widthProperty().divide(2.0).subtract(button.widthProperty()));
@@ -277,18 +279,17 @@ public class GameController {
         Scene scene = pane.getScene();
 
         scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
+            if (event.getCode() == KeyCode.ESCAPE)
                 handleEscapeKey();
-            }
         });
     }
 
     @FXML private void handleEscapeKey() {
         if (optionsPane.isVisible())
             optionsPane.setVisible(false);
-        else if (statsPane.isVisible()) {
+        else if (statsPane.isVisible())
             statsPane.setVisible(false);
-        } else
+        else
             transparentPane.setVisible(!transparentPane.isVisible());
     }
 
@@ -443,7 +444,6 @@ public class GameController {
         biscuitButton.setLayoutX((pane.getWidth() - biscuitButton.getWidth()) / 2);
         biscuitButton.setLayoutY((pane.getHeight() - biscuitButton.getHeight()) / 2);
         biscuitButton.setFocusTraversable(false);
-
     }
 
     @FXML private void biscuitBlitzed() {
@@ -493,7 +493,8 @@ public class GameController {
                 nums.setValue(1);
             else
                 nums.setValue(nums.getValue() * 2);
-        } else
+        }
+        else
             nums.setValue(nums.getValue() + 1);
 
         nums.setUpgradeCost(nums.getUpgradeCost() * 10);

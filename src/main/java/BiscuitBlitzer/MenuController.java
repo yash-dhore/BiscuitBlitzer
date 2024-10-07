@@ -100,7 +100,8 @@ public class MenuController {
             for (int i = 0; i < 11; i++) {
                 Long.parseLong(numberStrings[i]);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return "";
         }
 
@@ -148,17 +149,17 @@ public class MenuController {
             String parsedKey = parseKey(input);
             if (parsedKey.isEmpty()) {
                 showAlert("Player key", "Invalid player key", pane);
-            } else {
+            }
+            else {
                 try {
                     openGame(parsedKey);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
     }
 
-    @FXML protected void onQuitButtonClick() {
-        Platform.exit();
-    }
+    @FXML protected void onQuitButtonClick() {Platform.exit();}
 }
