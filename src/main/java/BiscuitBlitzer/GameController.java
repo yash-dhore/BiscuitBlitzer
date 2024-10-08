@@ -218,11 +218,11 @@ public class GameController {
         pane.heightProperty().addListener((obs, oldVal, newVal) -> initialBiscuitPosition());
 
         bpsNums = new UpgradeButton();
-        configureUpgradeButton(bpsNums, bps,25, 0, "Buy 1 BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
+        configureUpgradeButton(bpsNums, bps,25, 0, "Buy 1 BPS for 25 biscuits");
         bindButton(bps, 100, pane.heightProperty().divide(50).multiply(-1));
 
         multiNums = new UpgradeButton();
-        configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
+        configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for 100 biscuits");
         bindButton(multiplier, 100, pane.heightProperty().divide(50));
 
         Timeline gameTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> runEverySecond()));

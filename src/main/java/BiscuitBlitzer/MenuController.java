@@ -108,9 +108,7 @@ public class MenuController {
         return playerKey;
     }
 
-    @FXML private void onNewButtonClick() throws IOException {
-        openGame("");
-    }
+    @FXML private void onNewButtonClick() throws IOException {openGame("");}
 
     private void openGame(String playerKey) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BiscuitBlitzer.class.getResource("/game.fxml"));
