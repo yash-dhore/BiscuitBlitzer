@@ -204,7 +204,7 @@ public class GameController {
         }
     }
 
-    @FXML public void initialize() {
+    public void initialize() {
         startTime = Instant.now().getEpochSecond();
         sessionStartTime = startTime;
 

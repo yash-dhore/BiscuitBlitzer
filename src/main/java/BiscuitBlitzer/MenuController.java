@@ -32,7 +32,7 @@ public class MenuController {
 
     public static boolean darkMode = false;
 
-    static void showAlert(String title, String content, Pane pane) {
+    public static void showAlert(String title, String content, Pane pane) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -53,7 +53,7 @@ public class MenuController {
         }
     }
 
-    public void initialize() {
+     public void initialize() {
         pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
     }
 
@@ -91,7 +91,7 @@ public class MenuController {
         }
     }
 
-    @FXML protected String parseKey(String input) {
+    @FXML private String parseKey(String input) {
         String playerKey;
         try {
             playerKey = new String(Base64.getDecoder().decode(input));
@@ -108,7 +108,7 @@ public class MenuController {
         return playerKey;
     }
 
-    @FXML protected void onNewButtonClick() throws IOException {
+    @FXML private void onNewButtonClick() throws IOException {
         openGame("");
     }
 
@@ -143,7 +143,7 @@ public class MenuController {
         }
     }
 
-    @FXML protected void onLoadButtonClick() {
+    @FXML private void onLoadButtonClick() {
         Optional<String> result = inputDialog.showAndWait();
         result.ifPresent(input -> {
             String parsedKey = parseKey(input);
@@ -161,5 +161,5 @@ public class MenuController {
         });
     }
 
-    @FXML protected void onQuitButtonClick() {Platform.exit();}
+    @FXML private void onQuitButtonClick() {Platform.exit();}
 }
