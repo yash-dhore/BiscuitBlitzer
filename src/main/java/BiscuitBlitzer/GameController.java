@@ -69,6 +69,7 @@ public class GameController {
     private Timeline eventTimeline;
 
     public static boolean darkMode = false;
+    public static String backgroundColor;
 
     private UpgradeButton bpsNums;
     private UpgradeButton multiNums;
@@ -232,16 +233,23 @@ public class GameController {
         pane.heightProperty().addListener((obs, oldVal, newVal) -> {
             setAdditionalPanes();
             checkForEscapeKey();
+            changePaneColors();
         });
 
-        hexChooser.setOnAction(e -> changePaneColors());
+        hexChooser.setOnAction(e -> updateBackgroundColors());
     }
 
+    private void updateBackgroundColors() {
+        backgroundColor = hexChooser.getValue().toString().substring(2);
+        changePaneColors();
+        MenuController.backgroundColor = backgroundColor;
+
+    }
     private void changePaneColors() {
-        optionsPane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
-        pane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
-        statsPane.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
-        biscuitButton.setStyle("-fx-background-color: #" + hexChooser.getValue().toString().substring(2));
+        optionsPane.setStyle("-fx-background-color: #" + backgroundColor);
+        pane.setStyle("-fx-background-color: #" + backgroundColor);
+        statsPane.setStyle("-fx-background-color: #" + backgroundColor);
+        biscuitButton.setStyle("-fx-background-color: #" + backgroundColor);
     }
 
     private void setAdditionalPanes() {

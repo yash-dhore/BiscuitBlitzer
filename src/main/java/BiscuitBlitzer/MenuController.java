@@ -31,6 +31,7 @@ public class MenuController {
     private TextInputDialog inputDialog;
 
     public static boolean darkMode = false;
+    public static String backgroundColor = "FFFFFF";
 
     public static void showAlert(String title, String content, Pane pane) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -54,7 +55,8 @@ public class MenuController {
     }
 
      public void initialize() {
-        pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
+         pane.setStyle("-fx-background-color: #" + backgroundColor);
+         pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
     }
 
     private void updatePositions() {
@@ -124,6 +126,8 @@ public class MenuController {
         }
         else
             cssFile = "/lightStyles.css";
+
+        GameController.backgroundColor = backgroundColor;
 
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(cssFile)).toExternalForm());
 
