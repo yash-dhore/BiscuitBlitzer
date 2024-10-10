@@ -11,7 +11,7 @@
 
     <Button fx:id="biscuitButton" styleClass="biscuit-button" onAction="#biscuitBlitzed">
         <graphic>
-            <ImageView fx:id="imageView" fitWidth="50" fitHeight="50" preserveRatio="true">
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
                 <Image url="@images/biscuit.png"/>
             </ImageView>
         </graphic>
@@ -28,7 +28,7 @@
     </Pane>
 
     <Pane fx:id="optionsPane" styleClass="pane">
-        <Button fx:id="toggleDarkMode" text="Toggle Dark Mode" styleClass="button" onAction="#switchStylesheet"/>
+        <Button fx:id="toggleDarkMode" text="Toggle Dark Mode" styleClass="button" onAction="#changeDarkMode"/>
         <ColorPicker fx:id="hexChooser"/>
     </Pane>
 

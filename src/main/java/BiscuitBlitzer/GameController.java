@@ -69,7 +69,7 @@ public class GameController {
     private Timeline eventTimeline;
 
     public static boolean darkMode = false;
-    public static String backgroundColor;
+    public static String backgroundColor = "FFFFFF";
 
     private UpgradeButton bpsNums;
     private UpgradeButton multiNums;
@@ -129,13 +129,15 @@ public class GameController {
         bpsNums.setValue(Integer.parseInt(numberStrings[3]));
         multiNums.setUpgradeCost(Long.parseLong(numberStrings[4]));
         bpsNums.setUpgradeCost(Long.parseLong(numberStrings[5]));
-        startTime = Long.parseLong(numberStrings[6]);
-        sessionsOpenTime = Long.parseLong(numberStrings[7]);
-        biscuitsBlitzed = Integer.parseInt(numberStrings[8]);
-        eventsTriggered = Integer.parseInt(numberStrings[9]);
+        darkMode = Boolean.parseBoolean(numberStrings[6]);
+        backgroundColor = numberStrings[7];
+        startTime = Long.parseLong(numberStrings[8]);
+        sessionsOpenTime = Long.parseLong(numberStrings[9]);
+        biscuitsBlitzed = Integer.parseInt(numberStrings[10]);
+        eventsTriggered = Integer.parseInt(numberStrings[11]);
 
         if (bpsNums.getValue() != 0) {
-            long addedBiscuits = (long) multiNums.getValue() * bpsNums.getValue() * (currentSeconds - Long.parseLong(numberStrings[10]));
+            long addedBiscuits = (long) multiNums.getValue() * bpsNums.getValue() * (currentSeconds - Long.parseLong(numberStrings[12]));
             numBiscuits += addedBiscuits;
             totalBiscuits += addedBiscuits;
 
@@ -149,6 +151,9 @@ public class GameController {
         multiplier.setText("Buy " + (multiNums.getValue() + 1) + "x multiplier for " + formatNumber(multiNums.getUpgradeCost()) + " biscuits");
 
         text.setText("Biscuits: " + formatNumber(numBiscuits));
+
+        switchStylesheet();
+        changePaneColors();
     }
 
     private void updateStats(long currentSeconds) {
@@ -305,7 +310,10 @@ public class GameController {
         long currentSeconds = Instant.now().getEpochSecond();
 
         String playerKey = numBiscuits + "," + multiNums.getValue() + "," + totalBiscuits + "," + bpsNums.getValue()
-                + "," + multiNums.getUpgradeCost() + "," + bpsNums.getUpgradeCost() + "," + startTime + "," + (sessionsOpenTime + currentSeconds - sessionStartTime) + "," + biscuitsBlitzed + "," + eventsTriggered + "," + currentSeconds;
+                + "," + multiNums.getUpgradeCost() + "," + bpsNums.getUpgradeCost()
+                + "," + darkMode + "," + backgroundColor + "," + startTime
+                + "," + (sessionsOpenTime + currentSeconds - sessionStartTime) + "," + biscuitsBlitzed
+                + "," + eventsTriggered + "," + currentSeconds;
 
         String playerKeyEncoded = Base64.getEncoder().encodeToString(playerKey.getBytes());
         MenuController.showAlert("Player key", "Click 'OK' to copy your player key to your clipboard. Save it somewhere if you don't want to lose your progress!", pane);
@@ -318,11 +326,13 @@ public class GameController {
 
         String cssFile;
         if (darkMode) {
-            MenuController.darkMode = true;
             cssFile = "/darkStyles.css";
         }
         else
             cssFile = "/lightStyles.css";
+
+        MenuController.darkMode = darkMode;
+        MenuController.backgroundColor = backgroundColor;
 
         BiscuitBlitzer.launchMenu(stage, cssFile);
     }
@@ -522,21 +532,25 @@ public class GameController {
         statsPane.setVisible(true);
     }
 
-    @FXML private void switchStylesheet() {
+    @FXML private void changeDarkMode() {
+        darkMode = !darkMode;
+        switchStylesheet();
+    }
+
+    private void switchStylesheet() {
         Scene scene = pane.getScene();
         if (scene != null) {
             String style1 = Objects.requireNonNull(getClass().getResource("/lightStyles.css")).toExternalForm();
             String style2 = Objects.requireNonNull(getClass().getResource("/darkStyles.css")).toExternalForm();
 
             if (darkMode) {
-                scene.getStylesheets().remove(style2);
-                scene.getStylesheets().add(style1);
-            }
-            else {
                 scene.getStylesheets().remove(style1);
                 scene.getStylesheets().add(style2);
             }
-            darkMode = !darkMode;
+            else {
+                scene.getStylesheets().remove(style2);
+                scene.getStylesheets().add(style1);
+            }
         }
     }
 

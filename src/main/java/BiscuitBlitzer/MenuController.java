@@ -99,7 +99,10 @@ public class MenuController {
             playerKey = new String(Base64.getDecoder().decode(input));
 
             String[] numberStrings = playerKey.split(",");
-            for (int i = 0; i < 11; i++) {
+            for (int i = 0; i < 13; i++) {
+                if (i == 6 || i == 7)
+                    continue;
+
                 Long.parseLong(numberStrings[i]);
             }
         }
@@ -119,17 +122,9 @@ public class MenuController {
 
         Scene scene = new Scene(fxmlLoader.load());
 
-        String cssFile;
-        if (darkMode) {
-            GameController.darkMode = true;
-            cssFile = "/darkStyles.css";
-        }
-        else
-            cssFile = "/lightStyles.css";
-
-        GameController.backgroundColor = backgroundColor;
-
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(cssFile)).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/lightStyles.css")).toExternalForm());
+        GameController.darkMode = false;
+        GameController.backgroundColor = "FFFFFF";
 
         stage.setTitle("Biscuit Blitzer");
 
