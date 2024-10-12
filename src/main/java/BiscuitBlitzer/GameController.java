@@ -37,7 +37,7 @@ public class GameController {
     @FXML private Pane pane;
     @FXML private Label text;
     @FXML private Label eventText;
-    @FXML private Button toggleDarkMode;
+    @FXML private Button darkModeToggle;
     @FXML private Pane transparentPane;
     @FXML private Button backToGame;
     @FXML private Button quitButton;
@@ -274,7 +274,8 @@ public class GameController {
         scene = optionsPane.getScene();
         optionsPane.prefWidthProperty().bind(scene.widthProperty());
         optionsPane.prefHeightProperty().bind(scene.heightProperty());
-        bindButton(toggleDarkMode, 2, transparentPane.heightProperty().multiply(0));
+        bindButton(darkModeToggle, 2, transparentPane.heightProperty().divide(25).multiply(-1));
+        bindButton(hexChooser, 2, transparentPane.heightProperty().divide(25));
 
         scene = statsPane.getScene();
         statsPane.prefWidthProperty().bind(scene.widthProperty());

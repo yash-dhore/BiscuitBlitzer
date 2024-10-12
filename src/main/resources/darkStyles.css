@@ -46,5 +46,73 @@
 
 .custom-alert .title {
     -fx-background-color: #1E1E1E;
-    -fx-text-fill: white
+    -fx-text-fill: white;
+}
+
+.color-picker {
+    -fx-background-color: #1E1E1E;
+}
+
+.color-picker .label {
+    -fx-text-fill: white;
+}
+
+.color-palette {
+    -fx-background-color: #1E1E1E;
+}
+
+.hyperlink {
+    -fx-text-fill: white;
+}
+
+.custom-color-dialog {
+    -fx-background-color: #1E1E1E;
+}
+
+.custom-color-dialog .label {
+    -fx-text-fill: white;
+}
+
+.custom-rect-pane {
+    -fx-background-color: #1E1E1E;
+}
+
+.custom-rect-pane .label {
+    -fx-text-fill: white;
+}
+
+.controls-pane {
+    -fx-background-color: #1E1E1E;
+}
+
+.controls-pane .label {
+    -fx-text-fill: white;
+}
+
+.toggle-button {
+    -fx-background-color: #1E1E1E;
+}
+
+.toggle-button .text {
+    -fx-text-fill: white;
+}
+
+.slider {
+    -fx-background-color: #1E1E1E;
+}
+
+.slider .label {
+    -fx-text-fill: white;
+}
+
+.slider .track {
+    -fx-background-color: white;
+}
+
+.current-new-color-grid {
+    -fx-background-color: #1E1E1E;
+}
+
+.current-new-color-grid .label {
+    -fx-text-fill: white;
 }

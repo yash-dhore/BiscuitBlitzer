@@ -28,7 +28,7 @@
     </Pane>
 
     <Pane fx:id="optionsPane" styleClass="pane">
-        <Button fx:id="toggleDarkMode" text="Toggle Dark Mode" styleClass="button" onAction="#changeDarkMode"/>
+        <Button fx:id="darkModeToggle" text="Toggle Dark Mode" styleClass="button" onAction="#changeDarkMode"/>
         <ColorPicker fx:id="hexChooser"/>
     </Pane>
 
