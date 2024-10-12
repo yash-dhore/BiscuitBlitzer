@@ -91,9 +91,6 @@
 
 .toggle-button {
     -fx-background-color: #1E1E1E;
-}
-
-.toggle-button .text {
     -fx-text-fill: white;
 }
 
@@ -114,5 +111,19 @@
 }
 
 .current-new-color-grid .label {
+    -fx-text-fill: white;
+}
+
+.customcolor-controls-background {
+    -fx-background-color: #1E1E1E;
+}
+
+.integer-field {
+    -fx-background-color: #1E1E1E;
+    -fx-text-fill: white;
+}
+
+.webcolor-field {
+    -fx-background-color: #1E1E1E;
     -fx-text-fill: white;
 }
