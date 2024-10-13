@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,7 +34,7 @@ public class MenuController {
     public static boolean darkMode = false;
     public static String backgroundColor = "FFFFFF";
 
-    public static void showAlert(String title, String content, Pane pane) {
+    public static boolean showAlert(String title, String content, Pane pane) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -43,14 +44,16 @@ public class MenuController {
         alert.initOwner(owner);
         alert.initModality(Modality.APPLICATION_MODAL);
 
-        if (title.equals("Player key"))
-            alert.showAndWait();
+        if (title.equals("Player key")) {
+            return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
+        }
         else {
             alert.show();
 
             PauseTransition pause = new PauseTransition(Duration.seconds(5));
             pause.setOnFinished(event -> alert.close());
             pause.play();
+            return true;
         }
     }
 
@@ -85,11 +88,18 @@ public class MenuController {
             inputDialog = new TextInputDialog("");
             inputDialog.setContentText("Player key: ");
             inputDialog.setHeaderText("Enter your player key");
+            inputDialog.titleProperty().set("Load Game");
             Window owner = pane.getScene().getWindow();
             inputDialog.initOwner(owner);
             inputDialog.initModality(Modality.APPLICATION_MODAL);
-
             inputDialog.getDialogPane().getStyleClass().add("custom-alert");
+
+            ImageView view = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/biscuit.png"))));
+            view.setFitHeight(32);
+            view.setFitWidth(32);
+            view.setPreserveRatio(true);
+
+            inputDialog.setGraphic(view);
         }
     }
 
@@ -141,6 +151,7 @@ public class MenuController {
     }
 
     @FXML private void onLoadButtonClick() {
+        inputDialog.getEditor().clear();
         Optional<String> result = inputDialog.showAndWait();
         result.ifPresent(input -> {
             String parsedKey = parseKey(input);

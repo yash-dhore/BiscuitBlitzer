@@ -154,6 +154,8 @@ public class GameController {
 
         switchStylesheet();
         changePaneColors();
+
+        hexChooser.setValue(javafx.scene.paint.Color.web("#" + backgroundColor));
     }
 
     private void updateStats(long currentSeconds) {
@@ -308,6 +310,11 @@ public class GameController {
     }
 
     @FXML private void quitAndSave() throws IOException {
+        boolean proceed = MenuController.showAlert("Player key", "Click 'OK' to copy your player key to your clipboard. Save it somewhere if you don't want to lose your progress!", pane);
+
+        if (!proceed)
+            return;
+
         long currentSeconds = Instant.now().getEpochSecond();
 
         String playerKey = numBiscuits + "," + multiNums.getValue() + "," + totalBiscuits + "," + bpsNums.getValue()
@@ -317,7 +324,6 @@ public class GameController {
                 + "," + eventsTriggered + "," + currentSeconds;
 
         String playerKeyEncoded = Base64.getEncoder().encodeToString(playerKey.getBytes());
-        MenuController.showAlert("Player key", "Click 'OK' to copy your player key to your clipboard. Save it somewhere if you don't want to lose your progress!", pane);
 
         StringSelection sS = new StringSelection(playerKeyEncoded);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
