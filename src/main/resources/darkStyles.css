@@ -127,3 +127,11 @@
     -fx-background-color: #1E1E1E;
     -fx-text-fill: white;
 }
+
+.dialog-pane {
+    -fx-background-color: #1E1E1E;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: white;
+}
