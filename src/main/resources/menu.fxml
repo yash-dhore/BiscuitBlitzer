@@ -4,6 +4,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <Pane xmlns:fx="http://javafx.com/fxml" fx:id="pane" styleClass="pane"
       fx:controller="BiscuitBlitzer.MenuController">
 
@@ -14,4 +15,9 @@
     <Button fx:id="newButton" styleClass="button" text="New Game" onAction="#onNewButtonClick"/>
     <Button fx:id="loadButton" styleClass="button" text="Load Game" onAction="#onLoadButtonClick"/>
     <Button fx:id="quitButton" styleClass="button" text="Quit Game" onAction="#onQuitButtonClick"/>
+
+    <Pane fx:id="loadPane" styleClass="pane">
+        <Button fx:id="openSaveDir" styleClass="button" text="Open save directory" onAction="#onChooseDirButtonClick"/>
+        <VBox fx:id="vBox"/>
+    </Pane>
 </Pane>

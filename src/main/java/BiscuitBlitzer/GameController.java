@@ -68,6 +68,8 @@ public class GameController {
     private Timeline countdownTimeline;
     private Timeline eventTimeline;
 
+    private Timeline gameTimeline;
+
     public static boolean darkMode = false;
     public static String backgroundColor = "FFFFFF";
 
@@ -233,7 +235,7 @@ public class GameController {
         configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for 100 biscuits");
         bindButton(multiplier, 100, pane.heightProperty().divide(50));
 
-        Timeline gameTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> runEverySecond()));
+        gameTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> runEverySecond()));
         gameTimeline.setCycleCount(Timeline.INDEFINITE);
         gameTimeline.play();
 
@@ -314,6 +316,12 @@ public class GameController {
 
         if (!proceed)
             return;
+
+        gameTimeline.stop();
+        if (countdownTimeline != null)
+            countdownTimeline.stop();
+        if (eventTimeline != null)
+            eventTimeline.stop();
 
         long currentSeconds = Instant.now().getEpochSecond();
 
@@ -412,7 +420,7 @@ public class GameController {
 
         eventText.setText(eventType + "event in progress: " + eventSecondsRemaining + " seconds remaining");
 
-        Timeline countdownTimeline = new Timeline(
+        countdownTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> updateEventCountdown(eventType))
         );
         countdownTimeline.setCycleCount(60);
@@ -441,7 +449,7 @@ public class GameController {
 
         eventText.setText(eventType + " event in progress: " + eventSecondsRemaining + " seconds remaining");
 
-        Timeline countdownTimeline = new Timeline(
+        countdownTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> updateEventCountdown(eventType))
         );
         countdownTimeline.setCycleCount(60);
