@@ -4,13 +4,16 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -22,7 +25,15 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class MenuController {
     @FXML private Pane pane;
@@ -31,15 +42,15 @@ public class MenuController {
     @FXML private Button quitButton;
     @FXML private ImageView imageView;
     @FXML private Pane loadPane;
-    @FXML private Button openSaveDir;
+    @FXML private HBox hBox;
     @FXML private VBox vBox;
-
-//    private TextInputDialog inputDialog;
+    @FXML ScrollPane scrollPane;
 
     public static boolean darkMode = false;
     public static String backgroundColor = "FFFFFF";
 
     private static File saveDir;
+    boolean sortedReverse = false;
 
     public static boolean showAlert(String title, String content, Pane pane) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -109,7 +120,14 @@ public class MenuController {
 
             checkForEscapeKey();
 
-            openSaveDir.layoutXProperty().bind(pane.widthProperty().subtract(openSaveDir.widthProperty()).divide(2.0));
+            hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2.0));
+
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPrefWidth(pane.getWidth());
+            scrollPane.setPrefHeight(pane.getHeight() - hBox.getPrefHeight());
+
+            scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2.0));
+            scrollPane.layoutYProperty().bind(hBox.heightProperty());
         }
     }
 
@@ -136,7 +154,7 @@ public class MenuController {
     @FXML private void onNewButtonClick() throws IOException {openGame("");}
 
     private void openGame(String playerKey) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(BiscuitBlitzer.class.getResource("/game.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/game.fxml"));
 
         Stage stage = (Stage) newButton.getScene().getWindow();
 
@@ -184,15 +202,11 @@ public class MenuController {
             openGame(parsedKey);
     }
 
-    private void findAndShowGames() {
+    private void findAndShowGames(File[] saveFiles) {
         vBox.getChildren().removeAll(vBox.getChildren());
-        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
-
-        Arrays.sort(saveFiles, (file1, file2) -> Long.compare(file2.lastModified(), file1.lastModified()));
 
         for (File saveFile : saveFiles) {
-            Button button = new Button(saveFile.getName().replaceFirst("[.][^.]+$", ""));
-
+            Button button = new Button("Open");
             button.setOnAction(e -> {
                 try {
                     loadSave(saveFile);
@@ -202,13 +216,63 @@ public class MenuController {
                 }
             });
 
-            vBox.getChildren().add(button);
+            GridPane grid = new GridPane();
+            grid.setPadding(new Insets(20));
+            grid.setStyle("-fx-border-color: black; -fx-border-width: 2 2 0 2");
+            grid.setHgap(loadPane.getPrefWidth()/8.0);
+            grid.setVgap(loadPane.getPrefHeight()/200.0);
+            grid.setPrefWidth(loadPane.getPrefWidth()/2.0);
+
+            Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
+            saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
+            grid.add(saveName, 0, 0);
+            Button saveOptions = new Button("...");
+            saveOptions.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+            grid.add(saveOptions, 2, 0);
+            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(saveFile.lastModified()), ZoneId.systemDefault());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
+            grid.addRow(1, new Label("Last modified: " + dateTime.format(formatter)));
+            grid.add(new Label("Some information about this save"), 0, 2);
+            grid.add(button, 2, 2);
+
+            HBox hBox = new HBox(grid);
+            hBox.setAlignment(Pos.CENTER);
+            hBox.setPrefWidth(loadPane.getWidth()/2.0);
+
+            vBox.getChildren().add(hBox);
+        }
+
+        // avoids bug that makes text within ScrollPane blurry
+        for (Node n : scrollPane.getChildrenUnmodifiable()) {
+            n.setCache(false);
         }
     }
 
     @FXML private void onLoadButtonClick() {
-        findAndShowGames();
+        sortFilesByActivity();
         loadPane.setVisible(true);
+    }
+
+    @FXML private void sortFilesAlphabetically() {
+        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
+        Arrays.sort(saveFiles);
+
+        if (!sortedReverse)
+            Arrays.sort(saveFiles, Collections.reverseOrder());
+        sortedReverse = !sortedReverse;
+
+        findAndShowGames(saveFiles);
+    }
+
+    @FXML private void sortFilesByActivity() {
+        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
+        Arrays.sort(saveFiles, (file1, file2) -> Long.compare(file2.lastModified(), file1.lastModified()));
+
+        if (!sortedReverse)
+            Collections.reverse(Arrays.asList(saveFiles));
+        sortedReverse = !sortedReverse;
+
+        findAndShowGames(saveFiles);
     }
 
     @FXML private void onChooseDirButtonClick() throws IOException {java.awt.Desktop.getDesktop().open(saveDir);}

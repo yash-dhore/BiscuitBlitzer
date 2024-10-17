@@ -69,7 +69,6 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>BiscuitBlitzer.BiscuitBlitzer</mainClass>
-                            <modules>javafx.controls, javafx.fxml, javafx.base, javafx.graphics</modules>
                         </configuration>
                     </execution>
                 </executions>

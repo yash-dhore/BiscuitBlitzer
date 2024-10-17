@@ -5,6 +5,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ScrollPane?>
 <Pane xmlns:fx="http://javafx.com/fxml" fx:id="pane" styleClass="pane"
       fx:controller="BiscuitBlitzer.MenuController">
 
@@ -17,7 +19,13 @@
     <Button fx:id="quitButton" styleClass="button" text="Quit Game" onAction="#onQuitButtonClick"/>
 
     <Pane fx:id="loadPane" styleClass="pane">
-        <Button fx:id="openSaveDir" styleClass="button" text="Open save directory" onAction="#onChooseDirButtonClick"/>
-        <VBox fx:id="vBox"/>
+        <HBox fx:id="hBox">
+            <Button styleClass="button" text="Sort saves by activity" onAction="#sortFilesByActivity"/>
+            <Button styleClass="button" text="Open save directory" onAction="#onChooseDirButtonClick"/>
+            <Button styleClass="button" text="Sort saves alphabetically" onAction="#sortFilesAlphabetically"/>
+        </HBox>
+        <ScrollPane fx:id="scrollPane" styleClass="pane">
+            <VBox fx:id="vBox"/>
+        </ScrollPane>
     </Pane>
 </Pane>
