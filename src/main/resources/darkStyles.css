@@ -5,7 +5,7 @@
 }
 
 .pane {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: white;
 }
 
 .text {
@@ -14,7 +14,7 @@
 
 .button {
     -fx-background-color: #2C2C2C;
-    -fx-text-fill: #F5F5F5;
+    -fx-text-fill: white;
     -fx-border-color: #3C3C3C;
 }
 
@@ -41,7 +41,7 @@
 .custom-alert .text-field {
     -fx-background-color: #1E1E1E;
     -fx-text-fill: white;
-    -fx-border-color: #3A3A3A;
+    -fx-border-color: #3C3C3C;
 }
 
 .custom-alert .title {
@@ -134,4 +134,17 @@
 
 .dialog-pane .label {
     -fx-text-fill: white;
+}
+
+.viewport .label {
+    -fx-text-fill: white;
+}
+
+.scroll-bar {
+    -fx-background-color: #1E1E1E;
+}
+
+.thumb {
+    -fx-background-color: #2C2C2C;
+    -fx-border-color: #3C3C3C;
 }

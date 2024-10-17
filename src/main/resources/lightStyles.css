@@ -1,11 +1,11 @@
 .biscuit-button {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: white;
     -fx-padding: 0;
     -fx-border-width: 0;
 }
 
 .pane {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: white;
 }
 
 .transparent-pane {

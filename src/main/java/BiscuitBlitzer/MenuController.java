@@ -8,10 +8,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -122,12 +127,15 @@ public class MenuController {
 
             hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2.0));
 
+            scrollPane.setStyle("-fx-background-color: #" + backgroundColor);
             scrollPane.setFitToWidth(true);
-            scrollPane.setPrefWidth(pane.getWidth());
-            scrollPane.setPrefHeight(pane.getHeight() - hBox.getPrefHeight());
+            scrollPane.setFitToHeight(true);
+            scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue());
 
             scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2.0));
             scrollPane.layoutYProperty().bind(hBox.heightProperty());
+
+            vBox.setStyle("-fx-background-color: #" + backgroundColor);
         }
     }
 
@@ -205,6 +213,7 @@ public class MenuController {
     private void findAndShowGames(File[] saveFiles) {
         vBox.getChildren().removeAll(vBox.getChildren());
 
+        boolean first = true;
         for (File saveFile : saveFiles) {
             Button button = new Button("Open");
             button.setOnAction(e -> {
@@ -218,22 +227,35 @@ public class MenuController {
 
             GridPane grid = new GridPane();
             grid.setPadding(new Insets(20));
-            grid.setStyle("-fx-border-color: black; -fx-border-width: 2 2 0 2");
-            grid.setHgap(loadPane.getPrefWidth()/8.0);
-            grid.setVgap(loadPane.getPrefHeight()/200.0);
-            grid.setPrefWidth(loadPane.getPrefWidth()/2.0);
 
-            Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
-            saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
-            grid.add(saveName, 0, 0);
-            Button saveOptions = new Button("...");
-            saveOptions.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
-            grid.add(saveOptions, 2, 0);
+            if (darkMode) {
+                if (!first)
+                    grid.setStyle("-fx-border-color: white; -fx-border-width: 0 2 2 2");
+                else
+                    grid.setStyle("-fx-border-color: white; -fx-border-width: 2 2 2 2");
+            }
+            else {
+                if (!first)
+                    grid.setStyle("-fx-border-color: black; -fx-border-width: 0 2 2 2");
+                else
+                    grid.setStyle("-fx-border-color: black; -fx-border-width: 2 2 2 2");
+            }
+            first = false;
+
+            grid.setPrefWidth(loadPane.getPrefWidth()/2.0);
+            grid.setVgap(20);
+
+            BorderPane borderPane = makeBorderPane(saveFile, grid);
+            grid.add(borderPane, 0, 0);
             LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(saveFile.lastModified()), ZoneId.systemDefault());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
             grid.addRow(1, new Label("Last modified: " + dateTime.format(formatter)));
-            grid.add(new Label("Some information about this save"), 0, 2);
-            grid.add(button, 2, 2);
+
+            borderPane = new BorderPane();
+            borderPane.setPrefWidth(grid.getPrefWidth() + 20);
+            borderPane.setLeft(new Label( "Some information about this save"));
+            borderPane.setRight(button);
+            grid.add(borderPane, 0, 2);
 
             HBox hBox = new HBox(grid);
             hBox.setAlignment(Pos.CENTER);
@@ -246,6 +268,18 @@ public class MenuController {
         for (Node n : scrollPane.getChildrenUnmodifiable()) {
             n.setCache(false);
         }
+    }
+
+    private static BorderPane makeBorderPane(File saveFile, GridPane grid) {
+        Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
+        saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
+        Button saveOptions = new Button("...");
+        saveOptions.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+        BorderPane borderPane = new BorderPane();
+        borderPane.setPrefWidth(grid.getPrefWidth() + 20);
+        borderPane.setLeft(saveName);
+        borderPane.setRight(saveOptions);
+        return borderPane;
     }
 
     @FXML private void onLoadButtonClick() {
