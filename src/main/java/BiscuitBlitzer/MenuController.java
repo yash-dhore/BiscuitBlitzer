@@ -8,11 +8,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -273,12 +269,18 @@ public class MenuController {
     private static BorderPane makeBorderPane(File saveFile, GridPane grid) {
         Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
         saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
-        Button saveOptions = new Button("...");
-        saveOptions.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+        Menu menu = new Menu("...");
+        MenuItem m1 = new MenuItem("Rename");
+        MenuItem m2 = new MenuItem("Delete");
+        menu.getItems().add(m1);
+        menu.getItems().add(m2);
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().add(menu);
+        menuBar.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(grid.getPrefWidth() + 20);
         borderPane.setLeft(saveName);
-        borderPane.setRight(saveOptions);
+        borderPane.setRight(menuBar);
         return borderPane;
     }
 

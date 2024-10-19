@@ -148,3 +148,19 @@
     -fx-background-color: #2C2C2C;
     -fx-border-color: #3C3C3C;
 }
+
+.menu-item {
+    -fx-background-color: #1E1E1E;
+}
+
+.menu-item:hover {
+    -fx-background-color: #3C3C3C;
+}
+
+.menu:hover {
+    -fx-background-color: #3C3C3C;
+}
+
+.menu:showing {
+    -fx-background-color: #3C3C3C;
+}
