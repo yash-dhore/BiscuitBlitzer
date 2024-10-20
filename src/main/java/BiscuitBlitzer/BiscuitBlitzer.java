@@ -25,8 +25,8 @@ public class BiscuitBlitzer extends Application {
 
         stage.setTitle("Biscuit Blitzer");
         stage.setScene(scene);
-//        stage.setResizable(false);
-//        stage.setFullScreen(true);
+        stage.setResizable(false);
+        stage.setFullScreen(true);
         stage.getIcons().add(new Image(Objects.requireNonNull(BiscuitBlitzer.class.getResourceAsStream("/images/biscuit.png"))));
         stage.show();
     }

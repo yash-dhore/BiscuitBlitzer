@@ -26,15 +26,12 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class MenuController {
     @FXML private Pane pane;
@@ -52,6 +49,8 @@ public class MenuController {
 
     private static File saveDir;
     boolean sortedReverse = false;
+    boolean sortedAlphabetically = false;
+    private TextInputDialog inputDialog;
 
     public static boolean showAlert(String title, String content, Pane pane) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -63,7 +62,7 @@ public class MenuController {
         alert.initOwner(owner);
         alert.initModality(Modality.APPLICATION_MODAL);
 
-        if (title.equals("Player key")) {
+        if (title.equals("Player key") || title.equals("Delete save")) {
             return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
         }
         else {
@@ -132,6 +131,22 @@ public class MenuController {
             scrollPane.layoutYProperty().bind(hBox.heightProperty());
 
             vBox.setStyle("-fx-background-color: #" + backgroundColor);
+
+            inputDialog = new TextInputDialog("");
+            inputDialog.setHeaderText("Rename selected save");
+            inputDialog.setContentText("New save name: ");
+            inputDialog.titleProperty().set("Rename save");
+            Window owner = pane.getScene().getWindow();
+            inputDialog.initOwner(owner);
+            inputDialog.initModality(Modality.APPLICATION_MODAL);
+            inputDialog.getDialogPane().getStyleClass().add("custom-alert");
+
+            ImageView view = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/biscuit.png"))));
+            view.setFitHeight(32);
+            view.setFitWidth(32);
+            view.setPreserveRatio(true);
+
+            inputDialog.setGraphic(view);
         }
     }
 
@@ -191,15 +206,24 @@ public class MenuController {
         });
     }
 
-    private void loadSave(File saveFile) throws IOException {
-        List<String> lines = Files.readAllLines(saveFile.toPath());
-
-        if (lines.size() != 1) {
-            showAlert("Player key", "Invalid player key", pane);
-            return;
+    private String getKey(File saveFile) {
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(saveFile.toPath());
+        }
+        catch (IOException e) {
+            return "";
         }
 
-        String parsedKey = parseKey(lines.get(0));
+        if (lines.size() != 1)
+            return "";
+
+        return parseKey(lines.get(0));
+    }
+
+    private void loadSave(File saveFile) throws IOException {
+        String parsedKey = getKey(saveFile);
+
         if (parsedKey.isEmpty())
             showAlert("Player key", "Invalid player key", pane);
         else
@@ -242,6 +266,15 @@ public class MenuController {
             grid.setVgap(20);
 
             BorderPane borderPane = makeBorderPane(saveFile, grid);
+            Menu menu = new Menu("...");
+            MenuItem m1 = getRenameMenuItem(saveFile);
+            MenuItem m2 = getDeleteMenuItem(saveFile);
+            menu.getItems().add(m1);
+            menu.getItems().add(m2);
+            MenuBar menuBar = new MenuBar();
+            menuBar.getMenus().add(menu);
+            menuBar.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+            borderPane.setRight(menuBar);
             grid.add(borderPane, 0, 0);
             LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(saveFile.lastModified()), ZoneId.systemDefault());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
@@ -249,7 +282,7 @@ public class MenuController {
 
             borderPane = new BorderPane();
             borderPane.setPrefWidth(grid.getPrefWidth() + 20);
-            borderPane.setLeft(new Label( "Some information about this save"));
+            borderPane.setLeft(new Label(getInfoText(saveFile)));
             borderPane.setRight(button);
             grid.add(borderPane, 0, 2);
 
@@ -266,25 +299,85 @@ public class MenuController {
         }
     }
 
+    private MenuItem getRenameMenuItem(File saveFile) {
+        MenuItem menuItem = new MenuItem("Rename");
+        menuItem.setOnAction(e -> {
+            inputDialog.getEditor().clear();
+            Optional<String> fileName = inputDialog.showAndWait();
+            fileName.ifPresent(event -> {
+                String message = isValidFilename(fileName.orElse(null));
+
+                if (!message.equals("Valid filename")) {
+                    showAlert("Invalid file name", message, loadPane);
+                    return;
+                }
+
+                File newName = new File(saveFile.getParentFile(), fileName.orElse(null)+".txt");
+                boolean renameSuccess = saveFile.renameTo(newName);
+
+                if (!renameSuccess) {
+                    showAlert("Invalid file name", message, loadPane);
+                    return;
+                }
+
+                sortedReverse = !sortedReverse;
+                if (sortedAlphabetically)
+                    sortFilesAlphabetically();
+                else
+                    sortFilesByActivity();
+            });
+        });
+
+        return menuItem;
+    }
+
+    private MenuItem getDeleteMenuItem(File saveFile) {
+        MenuItem menuItem = new MenuItem("Delete");
+        menuItem.setOnAction(e -> {
+            boolean deleteSave = showAlert("Delete save", "Are you sure you want to delete '" + saveFile.getName().replaceFirst("[.][^.]+$", "") + "'?", loadPane);
+
+            if (deleteSave) {
+                boolean successfulDelete = saveFile.delete();
+
+                if (successfulDelete) {
+                    sortedReverse = !sortedReverse;
+                    if (sortedAlphabetically)
+                        sortFilesAlphabetically();
+                    else
+                        sortFilesByActivity();
+                }
+            }
+        });
+
+        return menuItem;
+    }
+
+    private String getInfoText(File saveFile) {
+        String data = getKey(saveFile);
+
+        if (data.isEmpty())
+            return "Invalid player key";
+
+        String[] numberStrings = data.split(",");
+        String numBiscuits = GameController.formatNumber(Long.parseLong(numberStrings[0]));
+        int multiNums = Integer.parseInt(numberStrings[1]);
+        int bpsNums = Integer.parseInt(numberStrings[3]);
+        String biscuitGain = GameController.formatNumber(((Instant.now().getEpochSecond() - Long.parseLong(numberStrings[12]))*bpsNums*multiNums));
+
+        return "Biscuits: " + numBiscuits + " | Multiplier: " + multiNums + " | BPS: " + bpsNums + " | Estimated biscuit gain: " + biscuitGain;
+    }
+
     private static BorderPane makeBorderPane(File saveFile, GridPane grid) {
         Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
         saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
-        Menu menu = new Menu("...");
-        MenuItem m1 = new MenuItem("Rename");
-        MenuItem m2 = new MenuItem("Delete");
-        menu.getItems().add(m1);
-        menu.getItems().add(m2);
-        MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().add(menu);
-        menuBar.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(grid.getPrefWidth() + 20);
         borderPane.setLeft(saveName);
-        borderPane.setRight(menuBar);
         return borderPane;
     }
 
     @FXML private void onLoadButtonClick() {
+        sortedReverse = true;
         sortFilesByActivity();
         loadPane.setVisible(true);
     }
@@ -296,7 +389,7 @@ public class MenuController {
         if (!sortedReverse)
             Arrays.sort(saveFiles, Collections.reverseOrder());
         sortedReverse = !sortedReverse;
-
+        sortedAlphabetically = true;
         findAndShowGames(saveFiles);
     }
 
@@ -307,8 +400,31 @@ public class MenuController {
         if (!sortedReverse)
             Collections.reverse(Arrays.asList(saveFiles));
         sortedReverse = !sortedReverse;
-
+        sortedAlphabetically = false;
         findAndShowGames(saveFiles);
+    }
+    public static String isValidFilename(String filename) {
+        if (filename == null || filename.isEmpty())
+            return "Filename cannot be empty";
+
+        String invalidChars = "[\\\\/:*?\"<>|]";
+        if (filename.matches(".*" + invalidChars + ".*"))
+            return "Filename cannot have extraneous characters";
+
+        if (filename.length() > 16)
+            return "Filename cannot have more than 16 characters";
+
+        if (filename.endsWith(".") || filename.endsWith(" "))
+            return "Filename cannot end with a period or whitespace";
+
+        try {
+            Paths.get(filename);
+        }
+        catch (Exception e) {
+            return "Invalid filename path";
+        }
+
+        return "Valid filename";
     }
 
     @FXML private void onChooseDirButtonClick() throws IOException {java.awt.Desktop.getDesktop().open(saveDir);}

@@ -164,3 +164,8 @@
 .menu:showing {
     -fx-background-color: #3C3C3C;
 }
+
+.context-menu {
+    -fx-background-color: #1E1E1E;
+    -fx-border-color: #3C3C3C;
+}

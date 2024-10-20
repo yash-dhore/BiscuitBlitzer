@@ -20,9 +20,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class GameController {
     private static final Random random = new Random();
@@ -76,7 +74,7 @@ public class GameController {
     private UpgradeButton bpsNums;
     private UpgradeButton multiNums;
 
-    private static String formatNumber(long number) {
+    public static String formatNumber(long number) {
         if (number >= 1_000_000_000_000L)
             return DF.format(number / 1_000_000_000_000.0) + "T";
         else if (number >= 1_000_000_000)
