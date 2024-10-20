@@ -8,15 +8,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -74,6 +75,9 @@ public class GameController {
     private UpgradeButton bpsNums;
     private UpgradeButton multiNums;
 
+    private TextInputDialog inputDialog;
+    private File saveFile;
+
     public static String formatNumber(long number) {
         if (number >= 1_000_000_000_000L)
             return DF.format(number / 1_000_000_000_000.0) + "T";
@@ -118,7 +122,7 @@ public class GameController {
         return result.toString();
     }
 
-    public void setData(String data) {
+    public void setData(String data, File saveFile) {
         long currentSeconds = Instant.now().getEpochSecond();
 
         String[] numberStrings = data.split(",");
@@ -156,6 +160,8 @@ public class GameController {
         changePaneColors();
 
         hexChooser.setValue(javafx.scene.paint.Color.web("#" + backgroundColor));
+
+        this.saveFile = saveFile;
     }
 
     private void updateStats(long currentSeconds) {
@@ -241,6 +247,7 @@ public class GameController {
             setAdditionalPanes();
             checkForEscapeKey();
             changePaneColors();
+            inputDialog = MenuController.createInputDialog(pane, "Create a new save", "Save name:", "Save your progress");
         });
 
         hexChooser.setOnAction(e -> updateBackgroundColors());
@@ -310,10 +317,45 @@ public class GameController {
     }
 
     @FXML private void quitAndSave() throws IOException {
-        boolean proceed = MenuController.showAlert("Player key", "Click 'OK' to copy your player key to your clipboard. Save it somewhere if you don't want to lose your progress!", pane);
+        if (saveFile == null || !saveFile.exists()) {
+            inputDialog.getEditor().clear();
+            Optional<String> fileName = inputDialog.showAndWait();
+            if (fileName.isPresent()) {
+                String message = MenuController.isValidFilename(fileName.orElse(null));
 
-        if (!proceed)
-            return;
+                if (!message.equals("Valid filename")) {
+                    MenuController.showAlert("Invalid file name", message, pane);
+                    return;
+                }
+
+                File saveDir = new File(FileSystemView.getFileSystemView().getDefaultDirectory().getPath(), "BiscuitBlitzer");
+                saveFile = new File(saveDir, fileName.orElse(null) + ".txt");
+
+                boolean createSuccess;
+                try {
+                    createSuccess = saveFile.createNewFile();
+                }
+                catch (IOException e) {
+                    MenuController.showAlert("Invalid file name", "Exception occurred", pane);
+                    saveFile = new File("");
+                    return;
+                }
+
+                if (!createSuccess) {
+                    MenuController.showAlert("Invalid file name", "Save with that name already exists", pane);
+                    saveFile = new File("");
+                    return;
+                }
+            }
+            else
+                return;
+        }
+        else {
+            boolean proceed = MenuController.showAlert("Save game", "Do you want to save your game?", pane);
+
+            if (!proceed)
+                return;
+        }
 
         gameTimeline.stop();
         if (countdownTimeline != null)
@@ -331,9 +373,9 @@ public class GameController {
 
         String playerKeyEncoded = Base64.getEncoder().encodeToString(playerKey.getBytes());
 
-        StringSelection sS = new StringSelection(playerKeyEncoded);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(sS, null);
+        FileWriter myWriter = new FileWriter(saveFile);
+        myWriter.write(playerKeyEncoded);
+        myWriter.close();
 
         Stage stage = (Stage) quitButton.getScene().getWindow();
 

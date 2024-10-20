@@ -62,7 +62,7 @@ public class MenuController {
         alert.initOwner(owner);
         alert.initModality(Modality.APPLICATION_MODAL);
 
-        if (title.equals("Player key") || title.equals("Delete save")) {
+        if (title.equals("Player key") || title.equals("Delete save") || title.equals("Save game")) {
             return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
         }
         else {
@@ -132,21 +132,7 @@ public class MenuController {
 
             vBox.setStyle("-fx-background-color: #" + backgroundColor);
 
-            inputDialog = new TextInputDialog("");
-            inputDialog.setHeaderText("Rename selected save");
-            inputDialog.setContentText("New save name: ");
-            inputDialog.titleProperty().set("Rename save");
-            Window owner = pane.getScene().getWindow();
-            inputDialog.initOwner(owner);
-            inputDialog.initModality(Modality.APPLICATION_MODAL);
-            inputDialog.getDialogPane().getStyleClass().add("custom-alert");
-
-            ImageView view = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/biscuit.png"))));
-            view.setFitHeight(32);
-            view.setFitWidth(32);
-            view.setPreserveRatio(true);
-
-            inputDialog.setGraphic(view);
+            inputDialog = createInputDialog(pane, "Rename selected save", "New save name:", "Rename save");
         }
     }
 
@@ -170,9 +156,9 @@ public class MenuController {
         return playerKey;
     }
 
-    @FXML private void onNewButtonClick() throws IOException {openGame("");}
+    @FXML private void onNewButtonClick() throws IOException {openGame("", new File(""));}
 
-    private void openGame(String playerKey) throws IOException {
+    private void openGame(String playerKey, File saveFile) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/game.fxml"));
 
         Stage stage = (Stage) newButton.getScene().getWindow();
@@ -193,7 +179,7 @@ public class MenuController {
 
         if (!playerKey.isEmpty()) {
             GameController gameController = fxmlLoader.getController();
-            gameController.setData(playerKey);
+            gameController.setData(playerKey, saveFile);
         }
     }
 
@@ -227,7 +213,7 @@ public class MenuController {
         if (parsedKey.isEmpty())
             showAlert("Player key", "Invalid player key", pane);
         else
-            openGame(parsedKey);
+            openGame(parsedKey, saveFile);
     }
 
     private void findAndShowGames(File[] saveFiles) {
@@ -316,7 +302,7 @@ public class MenuController {
                 boolean renameSuccess = saveFile.renameTo(newName);
 
                 if (!renameSuccess) {
-                    showAlert("Invalid file name", message, loadPane);
+                    showAlert("Invalid file name", "Save with that name already exists", loadPane);
                     return;
                 }
 
@@ -403,13 +389,34 @@ public class MenuController {
         sortedAlphabetically = false;
         findAndShowGames(saveFiles);
     }
+
+    public static TextInputDialog createInputDialog(Pane pane, String headerText, String contentText, String titleText) {
+        TextInputDialog inputDialog = new TextInputDialog("");
+        inputDialog.setHeaderText(headerText);
+        inputDialog.setContentText(contentText);
+        inputDialog.titleProperty().set(titleText);
+        Window owner = pane.getScene().getWindow();
+        inputDialog.initOwner(owner);
+        inputDialog.initModality(Modality.APPLICATION_MODAL);
+        inputDialog.getDialogPane().getStyleClass().add("custom-alert");
+
+        ImageView view = new ImageView(new Image(Objects.requireNonNull(MenuController.class.getResourceAsStream("/images/biscuit.png"))));
+        view.setFitHeight(32);
+        view.setFitWidth(32);
+        view.setPreserveRatio(true);
+
+        inputDialog.setGraphic(view);
+
+        return inputDialog;
+    }
+
     public static String isValidFilename(String filename) {
         if (filename == null || filename.isEmpty())
             return "Filename cannot be empty";
 
         String invalidChars = "[\\\\/:*?\"<>|]";
         if (filename.matches(".*" + invalidChars + ".*"))
-            return "Filename cannot have extraneous characters";
+            return "Filename cannot any of the following characters: \\/:*?\"<>|";
 
         if (filename.length() > 16)
             return "Filename cannot have more than 16 characters";
