@@ -21,10 +21,11 @@
     <Button fx:id="multiplier" styleClass="button" onAction="#onMultiplierClick"/>
 
     <Pane fx:id="transparentPane" styleClass="transparent-pane">
-        <Button fx:id="backToGame" text="Back to Game" styleClass="button" onAction="#handleEscapeKey"/>
+        <Button fx:id="backToGameButton" text="Back to Game" styleClass="button" onAction="#handleEscapeKey"/>
         <Button fx:id="optionsButton" text="Options" styleClass="button" onAction="#optionsScreen"/>
         <Button fx:id="statsButton" text="Statistics" styleClass="button" onAction="#statsScreen"/>
-        <Button fx:id="quitButton" text="Save and Quit to Title" styleClass="button" onAction="#quitAndSave"/>
+        <Button fx:id="quitAndSaveButton" text="Save and Quit to Title" styleClass="button" onAction="#quitAndSave"/>
+        <Button fx:id="quitButton" text="Quit Without Saving" styleClass="button" onAction="#quitNoSave"/>
     </Pane>
 
     <Pane fx:id="optionsPane" styleClass="pane">

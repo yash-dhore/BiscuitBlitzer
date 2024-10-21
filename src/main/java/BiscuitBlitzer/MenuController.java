@@ -52,7 +52,7 @@ public class MenuController {
     boolean sortedAlphabetically = false;
     private TextInputDialog inputDialog;
 
-    public static boolean showAlert(String title, String content, Pane pane) {
+    public static boolean showAlert(String title, String content, Pane pane, boolean waitForResponse) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -62,7 +62,7 @@ public class MenuController {
         alert.initOwner(owner);
         alert.initModality(Modality.APPLICATION_MODAL);
 
-        if (title.equals("Player key") || title.equals("Delete save") || title.equals("Save game")) {
+        if (waitForResponse) {
             return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
         }
         else {
@@ -84,8 +84,19 @@ public class MenuController {
             Platform.exit();
         }
 
+        setLogo();
         pane.setStyle("-fx-background-color: #" + backgroundColor);
         pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
+    }
+
+    private void setLogo() {
+        String logo;
+        if (Math.random() <= 0.01)
+            logo = "images/BiscuitBlizterLogo.png";
+        else
+            logo = "images/BiscuitBlitzerLogo.png";
+
+        imageView.setImage(new Image(String.valueOf(getClass().getResource("/" + logo))));
     }
 
     private void updatePositions() {
@@ -211,7 +222,7 @@ public class MenuController {
         String parsedKey = getKey(saveFile);
 
         if (parsedKey.isEmpty())
-            showAlert("Player key", "Invalid player key", pane);
+            showAlert("Player key", "Invalid player key", pane, false);
         else
             openGame(parsedKey, saveFile);
     }
@@ -294,7 +305,7 @@ public class MenuController {
                 String message = isValidFilename(fileName.orElse(null));
 
                 if (!message.equals("Valid filename")) {
-                    showAlert("Invalid file name", message, loadPane);
+                    showAlert("Invalid file name", message, loadPane, false);
                     return;
                 }
 
@@ -302,7 +313,7 @@ public class MenuController {
                 boolean renameSuccess = saveFile.renameTo(newName);
 
                 if (!renameSuccess) {
-                    showAlert("Invalid file name", "Save with that name already exists", loadPane);
+                    showAlert("Invalid file name", "Save with that name already exists", loadPane, false);
                     return;
                 }
 
@@ -320,7 +331,7 @@ public class MenuController {
     private MenuItem getDeleteMenuItem(File saveFile) {
         MenuItem menuItem = new MenuItem("Delete");
         menuItem.setOnAction(e -> {
-            boolean deleteSave = showAlert("Delete save", "Are you sure you want to delete '" + saveFile.getName().replaceFirst("[.][^.]+$", "") + "'?", loadPane);
+            boolean deleteSave = showAlert("Delete save", "Are you sure you want to delete '" + saveFile.getName().replaceFirst("[.][^.]+$", "") + "'?", loadPane, true);
 
             if (deleteSave) {
                 boolean successfulDelete = saveFile.delete();

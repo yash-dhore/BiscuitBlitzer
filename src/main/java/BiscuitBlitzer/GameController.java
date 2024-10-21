@@ -2,6 +2,7 @@ package BiscuitBlitzer;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -38,10 +39,11 @@ public class GameController {
     @FXML private Label eventText;
     @FXML private Button darkModeToggle;
     @FXML private Pane transparentPane;
-    @FXML private Button backToGame;
-    @FXML private Button quitButton;
+    @FXML private Button backToGameButton;
     @FXML private Button optionsButton;
     @FXML private Button statsButton;
+    @FXML private Button quitAndSaveButton;
+    @FXML private Button quitButton;
     @FXML private Pane optionsPane;
     @FXML private Pane statsPane;
     @FXML private Label totalBiscuitStat;
@@ -84,7 +86,7 @@ public class GameController {
         else if (number >= 1_000_000_000)
             return DF.format(number / 1_000_000_000.0) + "B";
         else if (number >= 1_000_000)
-            return DF.format(number / 1_000_000.0) +"M";
+            return DF.format(number / 1_000_000.0) + "M";
         else if (number >= 1_000)
             return DF.format(number / 1_000.0) + "K";
         else
@@ -145,7 +147,7 @@ public class GameController {
             numBiscuits += addedBiscuits;
             totalBiscuits += addedBiscuits;
 
-            MenuController.showAlert("Passive income", "You made " + formatNumber(addedBiscuits) + " biscuits while you were away!", pane);
+            MenuController.showAlert("Passive income", "You made " + formatNumber(addedBiscuits) + " biscuits while you were away!", pane, false);
 
             bps.setText("Buy " + (bpsNums.getValue() * 2) + " BPS for " + formatNumber(bpsNums.getUpgradeCost()) + " biscuits");
         }
@@ -232,7 +234,7 @@ public class GameController {
         pane.heightProperty().addListener((obs, oldVal, newVal) -> initialBiscuitPosition());
 
         bpsNums = new UpgradeButton();
-        configureUpgradeButton(bpsNums, bps,25, 0, "Buy 1 BPS for 25 biscuits");
+        configureUpgradeButton(bpsNums, bps, 25, 0, "Buy 1 BPS for 25 biscuits");
         bindButton(bps, 100, pane.heightProperty().divide(50).multiply(-1));
 
         multiNums = new UpgradeButton();
@@ -259,6 +261,7 @@ public class GameController {
         MenuController.backgroundColor = backgroundColor;
 
     }
+
     private void changePaneColors() {
         optionsPane.setStyle("-fx-background-color: #" + backgroundColor);
         pane.setStyle("-fx-background-color: #" + backgroundColor);
@@ -275,10 +278,11 @@ public class GameController {
         transparentPane.prefWidthProperty().bind(scene.widthProperty());
         transparentPane.prefHeightProperty().bind(scene.heightProperty());
 
-        bindButton(backToGame, 2, transparentPane.heightProperty().divide(25).multiply(-1));
-        bindSideBySideButton(optionsButton, true, transparentPane.heightProperty().multiply(0));
-        bindSideBySideButton(statsButton, false, transparentPane.heightProperty().multiply(0));
-        bindButton(quitButton, 2, transparentPane.heightProperty().divide(25));
+        bindButton(backToGameButton, 2, transparentPane.heightProperty().divide(50).multiply(-3));
+        bindSideBySideButton(optionsButton, true, transparentPane.heightProperty().divide(50).multiply(-1));
+        bindSideBySideButton(statsButton, false, transparentPane.heightProperty().divide(50).multiply(-1));
+        bindButton(quitAndSaveButton, 2, transparentPane.heightProperty().divide(50));
+        bindButton(quitButton, 2, transparentPane.heightProperty().divide(50).multiply(3));
 
         scene = optionsPane.getScene();
         optionsPane.prefWidthProperty().bind(scene.widthProperty());
@@ -291,10 +295,10 @@ public class GameController {
         statsPane.prefHeightProperty().bind(scene.heightProperty());
 
         setStatLayout(totalBiscuitStat, false, 5);
-        setStatLayout(biscuitsClickedStat, false,3);
+        setStatLayout(biscuitsClickedStat, false, 3);
         setStatLayout(totalTimeStat, false, 1);
         setStatLayout(timeOpenStat, true, 1);
-        setStatLayout(totalTimeOpenStat, true,3);
+        setStatLayout(totalTimeOpenStat, true, 3);
         setStatLayout(eventsTriggeredStat, true, 5);
     }
 
@@ -316,6 +320,22 @@ public class GameController {
             transparentPane.setVisible(!transparentPane.isVisible());
     }
 
+    private void loadMenu() throws IOException {
+        Stage stage = (Stage) quitAndSaveButton.getScene().getWindow();
+
+        String cssFile;
+        if (darkMode) {
+            cssFile = "/darkStyles.css";
+        }
+        else
+            cssFile = "/lightStyles.css";
+
+        MenuController.darkMode = darkMode;
+        MenuController.backgroundColor = backgroundColor;
+
+        BiscuitBlitzer.launchMenu(stage, cssFile);
+    }
+
     @FXML private void quitAndSave() throws IOException {
         if (saveFile == null || !saveFile.exists()) {
             inputDialog.getEditor().clear();
@@ -324,7 +344,7 @@ public class GameController {
                 String message = MenuController.isValidFilename(fileName.orElse(null));
 
                 if (!message.equals("Valid filename")) {
-                    MenuController.showAlert("Invalid file name", message, pane);
+                    MenuController.showAlert("Invalid file name", message, pane, false);
                     return;
                 }
 
@@ -336,13 +356,13 @@ public class GameController {
                     createSuccess = saveFile.createNewFile();
                 }
                 catch (IOException e) {
-                    MenuController.showAlert("Invalid file name", "Exception occurred", pane);
+                    MenuController.showAlert("Invalid file name", "Exception occurred", pane, false);
                     saveFile = new File("");
                     return;
                 }
 
                 if (!createSuccess) {
-                    MenuController.showAlert("Invalid file name", "Save with that name already exists", pane);
+                    MenuController.showAlert("Invalid file name", "Save with that name already exists", pane, false);
                     saveFile = new File("");
                     return;
                 }
@@ -351,7 +371,7 @@ public class GameController {
                 return;
         }
         else {
-            boolean proceed = MenuController.showAlert("Save game", "Do you want to save your game?", pane);
+            boolean proceed = MenuController.showAlert("Save game", "Do you want to save your game?", pane, true);
 
             if (!proceed)
                 return;
@@ -373,23 +393,32 @@ public class GameController {
 
         String playerKeyEncoded = Base64.getEncoder().encodeToString(playerKey.getBytes());
 
+        boolean setWritable = saveFile.setWritable(true);
+        if (!setWritable) {
+            System.out.println("Error: Missing permission to change write access to the save file.");
+            Platform.exit();
+        }
+
         FileWriter myWriter = new FileWriter(saveFile);
         myWriter.write(playerKeyEncoded);
         myWriter.close();
 
-        Stage stage = (Stage) quitButton.getScene().getWindow();
-
-        String cssFile;
-        if (darkMode) {
-            cssFile = "/darkStyles.css";
+        setWritable = saveFile.setWritable(false);
+        if (!setWritable) {
+            System.out.println("Error: Missing permission to change write access to the save file.");
+            Platform.exit();
         }
-        else
-            cssFile = "/lightStyles.css";
 
-        MenuController.darkMode = darkMode;
-        MenuController.backgroundColor = backgroundColor;
+        loadMenu();
+    }
 
-        BiscuitBlitzer.launchMenu(stage, cssFile);
+    @FXML private void quitNoSave() throws IOException {
+        boolean proceed = MenuController.showAlert("Quit without saving", "Are you sure you want to quit without saving your progress?", pane, true);
+
+        if (!proceed)
+            return;
+
+        loadMenu();
     }
 
     private void runEverySecond() {
@@ -422,7 +451,7 @@ public class GameController {
 
     private void startBonusEvent() {
         String eventType = "Big biscuit bonus";
-        MenuController.showAlert(eventType, "Press the biscuit button to instantly earn a huge bonus worth one hour of passive income!", pane);
+        MenuController.showAlert(eventType, "Press the biscuit button to instantly earn a huge bonus worth one hour of passive income!", pane, false);
 
         bonusEventActive = true;
 
@@ -451,7 +480,7 @@ public class GameController {
 
     private void startSpamKeyEvent() {
         String eventType = "Spam key";
-        MenuController.showAlert(eventType, "Spam the space bar/return key to get biscuits!", pane);
+        MenuController.showAlert(eventType, "Spam the space bar/return key to get biscuits!", pane, false);
 
         biscuitButton.requestFocus();
         biscuitButton.setFocusTraversable(true);
@@ -484,7 +513,7 @@ public class GameController {
 
     private void startDoubleEvent() {
         String eventType = "2x biscuit";
-        MenuController.showAlert(eventType, "You get double the biscuits for the next minute!", pane);
+        MenuController.showAlert(eventType, "You get double the biscuits for the next minute!", pane, false);
         eventMultiplier = 2;
 
         eventText.setText(eventType + " event in progress: " + eventSecondsRemaining + " seconds remaining");
@@ -553,9 +582,9 @@ public class GameController {
     private void attemptUpgrade(UpgradeButton nums, boolean isBPS) {
         if (numBiscuits < nums.getUpgradeCost()) {
             if (nums.getUpgradeCost() - numBiscuits > 1)
-                MenuController.showAlert("Not enough biscuits", "You need " + formatNumber(nums.getUpgradeCost() - numBiscuits) + " more biscuits to buy this upgrade.", pane);
+                MenuController.showAlert("Not enough biscuits", "You need " + formatNumber(nums.getUpgradeCost() - numBiscuits) + " more biscuits to buy this upgrade.", pane, false);
             else
-                MenuController.showAlert("Almost there!", "You’re on the brink of unlocking this upgrade—just one more biscuit!", pane);
+                MenuController.showAlert("Almost there!", "You’re on the brink of unlocking this upgrade—just one more biscuit!", pane, false);
             return;
         }
 

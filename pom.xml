@@ -6,7 +6,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>BiscuitBlitzer</artifactId>
-    <version>1.0</version>
+    <version>1.01</version>
     <name>BiscuitBlitzer</name>
 
     <properties>
