@@ -9,9 +9,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -42,7 +44,9 @@ public class MenuController {
     @FXML private Pane loadPane;
     @FXML private HBox hBox;
     @FXML private VBox vBox;
-    @FXML ScrollPane scrollPane;
+    @FXML private Button sortActivityButton;
+    @FXML private Button sortAlphaButton;
+    @FXML private ScrollPane scrollPane;
 
     public static boolean darkMode = false;
     public static String backgroundColor = "FFFFFF";
@@ -132,18 +136,24 @@ public class MenuController {
             checkForEscapeKey();
 
             hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2.0));
+            hBox.layoutYProperty().bind(loadPane.heightProperty().multiply(0).add(4));
 
             scrollPane.setStyle("-fx-background-color: #" + backgroundColor);
             scrollPane.setFitToWidth(true);
             scrollPane.setFitToHeight(true);
-            scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue());
+            scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue() - 8);
 
             scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2.0));
-            scrollPane.layoutYProperty().bind(hBox.heightProperty());
+            scrollPane.layoutYProperty().bind(hBox.heightProperty().add(8));
 
             vBox.setStyle("-fx-background-color: #" + backgroundColor);
 
             inputDialog = createInputDialog(pane, "Rename selected save", "New save name:", "Rename save");
+
+            scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+                if(event.isAltDown())
+                    event.consume();
+            });
         }
     }
 
@@ -167,7 +177,7 @@ public class MenuController {
         return playerKey;
     }
 
-    @FXML private void onNewButtonClick() throws IOException {openGame("", new File(""));}
+    @FXML private void onNewButtonClick() throws IOException { openGame("", new File("")); }
 
     private void openGame(String playerKey, File saveFile) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/game.fxml"));
@@ -270,6 +280,7 @@ public class MenuController {
             menu.getItems().add(m2);
             MenuBar menuBar = new MenuBar();
             menuBar.getMenus().add(menu);
+            menuBar.setFocusTraversable(false);
             menuBar.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
             borderPane.setRight(menuBar);
             grid.add(borderPane, 0, 0);
@@ -388,6 +399,9 @@ public class MenuController {
         sortedReverse = !sortedReverse;
         sortedAlphabetically = true;
         findAndShowGames(saveFiles);
+
+        sortAlphaButton.setEffect(new DropShadow());
+        sortActivityButton.setEffect(null);
     }
 
     @FXML private void sortFilesByActivity() {
@@ -399,6 +413,9 @@ public class MenuController {
         sortedReverse = !sortedReverse;
         sortedAlphabetically = false;
         findAndShowGames(saveFiles);
+
+        sortActivityButton.setEffect(new DropShadow());
+        sortAlphaButton.setEffect(null);
     }
 
     public static TextInputDialog createInputDialog(Pane pane, String headerText, String contentText, String titleText) {
@@ -445,7 +462,7 @@ public class MenuController {
         return "Valid filename";
     }
 
-    @FXML private void onChooseDirButtonClick() throws IOException {java.awt.Desktop.getDesktop().open(saveDir);}
+    @FXML private void onChooseDirButtonClick() throws IOException { java.awt.Desktop.getDesktop().open(saveDir); }
 
-    @FXML private void onQuitButtonClick() {Platform.exit();}
+    @FXML private void onQuitButtonClick() { Platform.exit(); }
 }

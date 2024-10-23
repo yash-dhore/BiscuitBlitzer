@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Region?>
 <Pane xmlns:fx="http://javafx.com/fxml" fx:id="pane" styleClass="pane"
       fx:controller="BiscuitBlitzer.MenuController">
 
@@ -17,9 +18,11 @@
 
     <Pane fx:id="loadPane" styleClass="pane">
         <HBox fx:id="hBox">
-            <Button styleClass="button" text="Sort saves by activity" onAction="#sortFilesByActivity"/>
+            <Button fx:id="sortActivityButton" styleClass="button" text="Sort saves by activity" onAction="#sortFilesByActivity"/>
+            <Region prefWidth="8"/>
             <Button styleClass="button" text="Open save directory" onAction="#onChooseDirButtonClick"/>
-            <Button styleClass="button" text="Sort saves alphabetically" onAction="#sortFilesAlphabetically"/>
+            <Region prefWidth="8"/>
+            <Button fx:id="sortAlphaButton" styleClass="button" text="Sort saves alphabetically" onAction="#sortFilesAlphabetically"/>
         </HBox>
         <ScrollPane fx:id="scrollPane" styleClass="pane">
             <VBox fx:id="vBox"/>

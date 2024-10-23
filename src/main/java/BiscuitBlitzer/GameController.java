@@ -259,7 +259,6 @@ public class GameController {
         backgroundColor = hexChooser.getValue().toString().substring(2);
         changePaneColors();
         MenuController.backgroundColor = backgroundColor;
-
     }
 
     private void changePaneColors() {
@@ -418,6 +417,12 @@ public class GameController {
         if (!proceed)
             return;
 
+        gameTimeline.stop();
+        if (countdownTimeline != null)
+            countdownTimeline.stop();
+        if (eventTimeline != null)
+            eventTimeline.stop();
+
         loadMenu();
     }
 
@@ -575,9 +580,9 @@ public class GameController {
         biscuitsBlitzed++;
     }
 
-    @FXML private void onBPSClick() {attemptUpgrade(bpsNums, true);}
+    @FXML private void onBPSClick() { attemptUpgrade(bpsNums, true); }
 
-    @FXML private void onMultiplierClick() {attemptUpgrade(multiNums, false);}
+    @FXML private void onMultiplierClick() { attemptUpgrade(multiNums, false); }
 
     private void attemptUpgrade(UpgradeButton nums, boolean isBPS) {
         if (numBiscuits < nums.getUpgradeCost()) {
@@ -609,7 +614,7 @@ public class GameController {
         text.setText("Biscuits: " + formatNumber(numBiscuits));
     }
 
-    @FXML private void optionsScreen() {optionsPane.setVisible(true);}
+    @FXML private void optionsScreen() { optionsPane.setVisible(true); }
 
     @FXML private void statsScreen() {
         updateStats(Instant.now().getEpochSecond());
@@ -642,12 +647,12 @@ public class GameController {
         private int value;
         private long upgradeCost;
 
-        public int getValue() {return value;}
+        public int getValue() { return value; }
 
-        public void setValue(int value) {this.value = value;}
+        public void setValue(int value) { this.value = value; }
 
-        public long getUpgradeCost() {return upgradeCost;}
+        public long getUpgradeCost() { return upgradeCost; }
 
-        public void setUpgradeCost(long upgradeCost) {this.upgradeCost = upgradeCost;}
+        public void setUpgradeCost(long upgradeCost) { this.upgradeCost = upgradeCost; }
     }
 }
