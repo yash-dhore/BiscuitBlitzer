@@ -61,6 +61,7 @@ public class GameController {
     private long sessionStartTime;
     private int biscuitsBlitzed = 0;
     private int eventsTriggered = 0;
+    private int timesBackgroundChanged = 0;
 
     private short eventMultiplier = 1;
     private boolean spamKeyEventActive = false;
@@ -79,6 +80,10 @@ public class GameController {
 
     private TextInputDialog inputDialog;
     private File saveFile;
+
+    Achievements achievements;
+    private short darkModeToggleCount = 0;
+    private boolean counting = false;
 
     public static String formatNumber(long number) {
         if (number >= 1_000_000_000_000L)
@@ -253,12 +258,18 @@ public class GameController {
         });
 
         hexChooser.setOnAction(e -> updateBackgroundColors());
+
+        achievements = new Achievements();
     }
 
     private void updateBackgroundColors() {
         backgroundColor = hexChooser.getValue().toString().substring(2);
         changePaneColors();
         MenuController.backgroundColor = backgroundColor;
+        timesBackgroundChanged++;
+
+        if (timesBackgroundChanged >= achievements.getAchievements().get(1).getThreshold() && !achievements.getAchievements().get(1).isUnlocked())
+            achievements.unlockAchievement(1);
     }
 
     private void changePaneColors() {
@@ -440,6 +451,9 @@ public class GameController {
 
         if (statsPane.isVisible())
             updateStats(currentSeconds);
+
+        if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getAchievements().get(3).getThreshold()  && !achievements.getAchievements().get(3).isUnlocked())
+            achievements.unlockAchievement(3);
     }
 
     private void startEvent() {
@@ -578,6 +592,9 @@ public class GameController {
         text.setText("Biscuits: " + formatNumber(numBiscuits));
 
         biscuitsBlitzed++;
+
+        if (biscuitsBlitzed >= achievements.getAchievements().get(2).getThreshold()  && !achievements.getAchievements().get(2).isUnlocked())
+            achievements.unlockAchievement(2);
     }
 
     @FXML private void onBPSClick() { attemptUpgrade(bpsNums, true); }
@@ -624,6 +641,21 @@ public class GameController {
     @FXML private void changeDarkMode() {
         darkMode = !darkMode;
         switchStylesheet();
+
+        if (!counting) {
+            counting = true;
+            darkModeToggleCount = 0;
+
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> counting = false));
+
+            timeline.setCycleCount(1);
+            timeline.play();
+        }
+
+        darkModeToggleCount++;
+
+        if (darkModeToggleCount >= achievements.getAchievements().get(0).getThreshold() && !achievements.getAchievements().get(0).isUnlocked())
+            achievements.unlockAchievement(0);
     }
 
     private void switchStylesheet() {
