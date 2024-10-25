@@ -39,11 +39,13 @@ public class GameController {
     @FXML private Label eventText;
     @FXML private Button darkModeToggle;
     @FXML private Pane transparentPane;
+    @FXML private Button achievementsButton;
     @FXML private Button backToGameButton;
-    @FXML private Button optionsButton;
     @FXML private Button statsButton;
+    @FXML private Button optionsButton;
     @FXML private Button quitAndSaveButton;
     @FXML private Button quitButton;
+    @FXML private Pane achievementsPane;
     @FXML private Pane optionsPane;
     @FXML private Pane statsPane;
     @FXML private Label totalBiscuitStat;
@@ -240,7 +242,7 @@ public class GameController {
 
         bpsNums = new UpgradeButton();
         configureUpgradeButton(bpsNums, bps, 25, 0, "Buy 1 BPS for 25 biscuits");
-        bindButton(bps, 100, pane.heightProperty().divide(50).multiply(-1));
+        bindButton(bps, 100, pane.heightProperty().divide(-50));
 
         multiNums = new UpgradeButton();
         configureUpgradeButton(multiNums, multiplier, 100, 1, "Buy 2x multiplier for 100 biscuits");
@@ -273,36 +275,47 @@ public class GameController {
     }
 
     private void changePaneColors() {
-        optionsPane.setStyle("-fx-background-color: #" + backgroundColor);
         pane.setStyle("-fx-background-color: #" + backgroundColor);
-        statsPane.setStyle("-fx-background-color: #" + backgroundColor);
         biscuitButton.setStyle("-fx-background-color: #" + backgroundColor);
+        achievementsPane.setStyle("-fx-background-color: #" + backgroundColor);
+        statsPane.setStyle("-fx-background-color: #" + backgroundColor);
+        optionsPane.setStyle("-fx-background-color: #" + backgroundColor);
     }
 
     private void setAdditionalPanes() {
         transparentPane.setVisible(false);
-        optionsPane.setVisible(false);
+        achievementsPane.setVisible(false);
         statsPane.setVisible(false);
+        optionsPane.setVisible(false);
 
         Scene scene = transparentPane.getScene();
         transparentPane.prefWidthProperty().bind(scene.widthProperty());
         transparentPane.prefHeightProperty().bind(scene.heightProperty());
 
-        bindButton(backToGameButton, 2, transparentPane.heightProperty().divide(50).multiply(-3));
-        bindSideBySideButton(optionsButton, true, transparentPane.heightProperty().divide(50).multiply(-1));
-        bindSideBySideButton(statsButton, false, transparentPane.heightProperty().divide(50).multiply(-1));
-        bindButton(quitAndSaveButton, 2, transparentPane.heightProperty().divide(50));
-        bindButton(quitButton, 2, transparentPane.heightProperty().divide(50).multiply(3));
+        backToGameButton.prefWidthProperty().bind(scene.widthProperty().divide(7.5));
+        achievementsButton.prefWidthProperty().bind(scene.widthProperty().divide(15));
+        statsButton.prefWidthProperty().bind(scene.widthProperty().divide(15));
+        optionsButton.prefWidthProperty().bind(scene.widthProperty().divide(7.5));
+        quitAndSaveButton.prefWidthProperty().bind(scene.widthProperty().divide(15));
+        quitButton.prefWidthProperty().bind(scene.widthProperty().divide(15));
 
-        scene = optionsPane.getScene();
-        optionsPane.prefWidthProperty().bind(scene.widthProperty());
-        optionsPane.prefHeightProperty().bind(scene.heightProperty());
-        bindButton(darkModeToggle, 2, transparentPane.heightProperty().divide(25).multiply(-1));
-        bindButton(hexChooser, 2, transparentPane.heightProperty().divide(25));
+        bindButton(backToGameButton, 2, transparentPane.heightProperty().divide(-12.5));
+        bindSideBySideButton(achievementsButton, true, transparentPane.heightProperty().divide(-25));
+        bindSideBySideButton(statsButton, false, transparentPane.heightProperty().divide(-25));
+        bindButton(optionsButton, 2, transparentPane.heightProperty().divide(25));
+        bindSideBySideButton(quitButton, true, transparentPane.heightProperty().divide(12.5));
+        bindSideBySideButton(quitAndSaveButton, false, transparentPane.heightProperty().divide(12.5));
 
-        scene = statsPane.getScene();
+        achievementsPane.prefWidthProperty().bind(scene.widthProperty());
+        achievementsPane.prefHeightProperty().bind(scene.heightProperty());
+
         statsPane.prefWidthProperty().bind(scene.widthProperty());
         statsPane.prefHeightProperty().bind(scene.heightProperty());
+
+        optionsPane.prefWidthProperty().bind(scene.widthProperty());
+        optionsPane.prefHeightProperty().bind(scene.heightProperty());
+        bindButton(darkModeToggle, 2, transparentPane.heightProperty().divide(-50));
+        bindButton(hexChooser, 2, transparentPane.heightProperty().divide(50));
 
         setStatLayout(totalBiscuitStat, false, 5);
         setStatLayout(biscuitsClickedStat, false, 3);
@@ -322,10 +335,12 @@ public class GameController {
     }
 
     @FXML private void handleEscapeKey() {
-        if (optionsPane.isVisible())
-            optionsPane.setVisible(false);
+        if (achievementsPane.isVisible())
+            achievementsPane.setVisible(false);
         else if (statsPane.isVisible())
             statsPane.setVisible(false);
+        else if (optionsPane.isVisible())
+            optionsPane.setVisible(false);
         else
             transparentPane.setVisible(!transparentPane.isVisible());
     }
@@ -629,6 +644,10 @@ public class GameController {
             multiplier.setText("Buy " + (multiNums.getValue() + 1) + "x multiplier for " + formatNumber(nums.getUpgradeCost()) + " biscuits");
 
         text.setText("Biscuits: " + formatNumber(numBiscuits));
+    }
+
+    @FXML private void achievementsScreen() {
+        achievementsPane.setVisible(true);
     }
 
     @FXML private void optionsScreen() { optionsPane.setVisible(true); }

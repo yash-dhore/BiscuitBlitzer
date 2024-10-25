@@ -9,10 +9,10 @@ public class Achievements {
     public Achievements() {
         achievements = new ArrayList<>();
 
-        achievements.add(new Achievement("Flashbang", "Toggle dark mode 5 times in a second", 5));
-        achievements.add(new Achievement("Personalizer", "Change background color 25 times", 25));
-        achievements.add(new Achievement("Master Blitzer", "Manually blitz 1,000 biscuits", 1000));
-        achievements.add(new Achievement("Grinder", "Have the session open for a total of 24 hours", 86400));
+        achievements.add(new Achievement("Flashbang", "Toggle dark mode 5 times in a second", 5, true));
+        achievements.add(new Achievement("Personalizer", "Change background color 25 times", 25, true));
+        achievements.add(new Achievement("Master Blitzer", "Manually blitz 1,000 biscuits", 1000, false));
+        achievements.add(new Achievement("Grinder", "Have the session open for a total of 24 hours", 86400, false));
     }
 
     public List<Achievement> getAchievements() {
@@ -28,17 +28,20 @@ public class Achievements {
         private final String description;
         private final long threshold;
         private boolean isUnlocked = false;
+        private final boolean isHidden;
 
-        public Achievement(String name, String description, int threshold) {
+        public Achievement(String name, String description, int threshold, boolean isHidden) {
             this.name = name;
             this.description = description;
             this.threshold = threshold;
+            this.isHidden = isHidden;
         }
 
         public String getName() { return name; }
         public String getDescription() { return description; }
+        public long getThreshold() { return threshold; }
         public boolean isUnlocked() { return isUnlocked; }
         public void setUnlocked() { isUnlocked = true; }
-        public long getThreshold() { return threshold; }
+        public boolean isHidden() { return isHidden; }
     }
 }

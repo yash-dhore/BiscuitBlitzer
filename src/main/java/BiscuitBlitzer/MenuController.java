@@ -116,12 +116,15 @@ public class MenuController {
             double centerX = paneWidth / 2 - buttonWidth / 2;
             double centerY = paneHeight / 2 - (3 * buttonHeight / 2);
 
+            newButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
             newButton.setLayoutX(centerX);
             newButton.setLayoutY(centerY);
 
+            loadButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
             loadButton.setLayoutX(centerX);
             loadButton.setLayoutY(centerY + buttonHeight + 10);
 
+            quitButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
             quitButton.setLayoutX(centerX);
             quitButton.setLayoutY(centerY + 2 * (buttonHeight + 10));
 
@@ -135,7 +138,7 @@ public class MenuController {
 
             checkForEscapeKey();
 
-            hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2.0));
+            hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2));
             hBox.layoutYProperty().bind(loadPane.heightProperty().multiply(0).add(4));
 
             scrollPane.setStyle("-fx-background-color: #" + backgroundColor);
@@ -143,7 +146,7 @@ public class MenuController {
             scrollPane.setFitToHeight(true);
             scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue() - 8);
 
-            scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2.0));
+            scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2));
             scrollPane.layoutYProperty().bind(hBox.heightProperty().add(8));
 
             vBox.setStyle("-fx-background-color: #" + backgroundColor);
