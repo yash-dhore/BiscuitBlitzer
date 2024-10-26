@@ -9,10 +9,10 @@ public class Achievements {
     public Achievements() {
         achievements = new ArrayList<>();
 
-        achievements.add(new Achievement("Flashbang", "Toggle dark mode 5 times in a second", 5, true));
-        achievements.add(new Achievement("Personalizer", "Change background color 25 times", 25, true));
         achievements.add(new Achievement("Master Blitzer", "Manually blitz 1,000 biscuits", 1000, false));
         achievements.add(new Achievement("Grinder", "Have the session open for a total of 24 hours", 86400, false));
+        achievements.add(new Achievement("Flashbang", "Toggle dark mode 5 times in a second", 5, true));
+        achievements.add(new Achievement("Personalizer", "Change background color 25 times", 25, true));
     }
 
     public List<Achievement> getAchievements() {
@@ -20,7 +20,7 @@ public class Achievements {
     }
 
     public void unlockAchievement(int index) {
-        achievements.get(index).setUnlocked();
+        achievements.get(index).unlock();
     }
 
     public static class Achievement {
@@ -40,8 +40,8 @@ public class Achievements {
         public String getName() { return name; }
         public String getDescription() { return description; }
         public long getThreshold() { return threshold; }
-        public boolean isUnlocked() { return isUnlocked; }
-        public void setUnlocked() { isUnlocked = true; }
+        public boolean isLocked() { return !isUnlocked; }
+        public void unlock() { isUnlocked = true; }
         public boolean isHidden() { return isHidden; }
     }
 }

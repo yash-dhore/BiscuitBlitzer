@@ -11,3 +11,11 @@
 .transparent-pane {
     -fx-background-color: rgba(0, 0, 0, 0.5);
 }
+
+.locked-achievement-label {
+    -fx-opacity: 0.5;
+}
+
+.achievement-box {
+    -fx-border-color: black;
+}

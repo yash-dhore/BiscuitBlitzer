@@ -169,3 +169,15 @@
     -fx-background-color: #1E1E1E;
     -fx-border-color: #3C3C3C;
 }
+
+.label {
+    -fx-text-fill: white;
+}
+
+.locked-achievement-label {
+    -fx-opacity: 0.5;
+}
+
+.achievement-box {
+    -fx-border-color: white;
+}

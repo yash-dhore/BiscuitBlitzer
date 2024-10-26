@@ -11,8 +11,10 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -46,6 +48,7 @@ public class GameController {
     @FXML private Button quitAndSaveButton;
     @FXML private Button quitButton;
     @FXML private Pane achievementsPane;
+    @FXML private VBox vBox;
     @FXML private Pane optionsPane;
     @FXML private Pane statsPane;
     @FXML private Label totalBiscuitStat;
@@ -182,6 +185,55 @@ public class GameController {
         eventsTriggeredStat.setText("Events triggered: " + formatNumber(eventsTriggered));
     }
 
+    private void updateAchievements() {
+        vBox.getChildren().removeAll(vBox.getChildren());
+        for (int i = 0; i < achievements.getAchievements().size(); i++) {
+            HBox achievement = getAchievementBox(i);
+            if (i % 5 == 0)
+                vBox.getChildren().add(achievement);
+            else {
+                HBox hBox = (HBox) vBox.getChildren().get(vBox.getChildren().size() - 1);
+                hBox.getChildren().add(achievement);
+            }
+        }
+    }
+
+    private HBox getAchievementBox(int i) {
+        String achievementName = getAchievementName(i);
+        String achievementDescription = achievements.getAchievements().get(i).isHidden() ? "This achievement is hidden until you unlock it." : achievements.getAchievements().get(i).getDescription();
+        Label achievementNameLabel = new Label(achievementName);
+        Label achievementDescriptionLabel = new Label(achievementDescription);
+        achievementNameLabel.setStyle("-fx-font-weight: bold");
+
+        HBox hBox = new HBox(new VBox(achievementNameLabel,achievementDescriptionLabel));
+
+        if (achievements.getAchievements().get(i).isLocked()) {
+            achievementNameLabel.getStyleClass().add("locked-achievement-label");
+            achievementDescriptionLabel.getStyleClass().add("locked-achievement-label");
+        }
+
+        hBox.getStyleClass().add("achievement-box");
+
+        return hBox;
+    }
+
+    private String getAchievementName(int i) {
+        String achievementName;
+
+        if (achievements.getAchievements().get(i).isHidden()) {
+            achievementName = "???";
+            if (achievements.getAchievements().get(i).isLocked())
+                achievementName += " (\uD83D\uDD12)";
+        }
+        else {
+            achievementName = achievements.getAchievements().get(i).getName();
+            if (achievements.getAchievements().get(i).isLocked())
+                 achievementName += " (\uD83D\uDD12)";
+        }
+
+        return achievementName;
+    }
+
     private void setLayout(Region component, double yDiv) {
         component.layoutXProperty().bind(pane.widthProperty().subtract(component.widthProperty()).divide(2.0));
         component.layoutYProperty().bind(pane.heightProperty().subtract(component.heightProperty()).divide(yDiv));
@@ -270,8 +322,10 @@ public class GameController {
         MenuController.backgroundColor = backgroundColor;
         timesBackgroundChanged++;
 
-        if (timesBackgroundChanged >= achievements.getAchievements().get(1).getThreshold() && !achievements.getAchievements().get(1).isUnlocked())
+        if (timesBackgroundChanged >= achievements.getAchievements().get(1).getThreshold() && achievements.getAchievements().get(1).isLocked()) {
             achievements.unlockAchievement(1);
+            updateAchievements();
+        }
     }
 
     private void changePaneColors() {
@@ -467,8 +521,11 @@ public class GameController {
         if (statsPane.isVisible())
             updateStats(currentSeconds);
 
-        if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getAchievements().get(3).getThreshold()  && !achievements.getAchievements().get(3).isUnlocked())
+        if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getAchievements().get(3).getThreshold() && achievements.getAchievements().get(3).isLocked()) {
             achievements.unlockAchievement(3);
+            updateAchievements();
+        }
+
     }
 
     private void startEvent() {
@@ -608,8 +665,10 @@ public class GameController {
 
         biscuitsBlitzed++;
 
-        if (biscuitsBlitzed >= achievements.getAchievements().get(2).getThreshold()  && !achievements.getAchievements().get(2).isUnlocked())
+        if (biscuitsBlitzed >= achievements.getAchievements().get(2).getThreshold() && achievements.getAchievements().get(2).isLocked()) {
             achievements.unlockAchievement(2);
+            updateAchievements();
+        }
     }
 
     @FXML private void onBPSClick() { attemptUpgrade(bpsNums, true); }
@@ -647,6 +706,7 @@ public class GameController {
     }
 
     @FXML private void achievementsScreen() {
+        updateAchievements();
         achievementsPane.setVisible(true);
     }
 
@@ -673,8 +733,10 @@ public class GameController {
 
         darkModeToggleCount++;
 
-        if (darkModeToggleCount >= achievements.getAchievements().get(0).getThreshold() && !achievements.getAchievements().get(0).isUnlocked())
+        if (darkModeToggleCount >= achievements.getAchievements().get(0).getThreshold() && achievements.getAchievements().get(0).isLocked()) {
             achievements.unlockAchievement(0);
+            updateAchievements();
+        }
     }
 
     private void switchStylesheet() {

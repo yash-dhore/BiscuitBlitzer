@@ -4,6 +4,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <Pane xmlns:fx="http://javafx.com/fxml" fx:id="pane" styleClass="pane"
       fx:controller="BiscuitBlitzer.GameController">
     <Label fx:id="text" styleClass="text"/>
@@ -30,7 +31,7 @@
     </Pane>
 
     <Pane fx:id="achievementsPane" styleClass="pane">
-
+        <VBox fx:id="vBox"/>
     </Pane>
 
     <Pane fx:id="optionsPane" styleClass="pane">
