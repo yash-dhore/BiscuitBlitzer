@@ -10,7 +10,7 @@
     <Label fx:id="text" styleClass="text"/>
     <Label fx:id="eventText" styleClass="text"/>
 
-    <Button fx:id="biscuitButton" styleClass="biscuit-button" onAction="#biscuitBlitzed">
+    <Button fx:id="biscuitButton" styleClass="biscuit-button" onAction="#blitzBiscuit">
         <graphic>
             <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
                 <Image url="@images/biscuit.png"/>

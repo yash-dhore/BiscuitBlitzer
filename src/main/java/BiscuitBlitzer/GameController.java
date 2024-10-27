@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
@@ -185,55 +186,6 @@ public class GameController {
         eventsTriggeredStat.setText("Events triggered: " + formatNumber(eventsTriggered));
     }
 
-    private void updateAchievements() {
-        vBox.getChildren().removeAll(vBox.getChildren());
-        for (int i = 0; i < achievements.getAchievements().size(); i++) {
-            HBox achievement = getAchievementBox(i);
-            if (i % 5 == 0)
-                vBox.getChildren().add(achievement);
-            else {
-                HBox hBox = (HBox) vBox.getChildren().get(vBox.getChildren().size() - 1);
-                hBox.getChildren().add(achievement);
-            }
-        }
-    }
-
-    private HBox getAchievementBox(int i) {
-        String achievementName = getAchievementName(i);
-        String achievementDescription = achievements.getAchievements().get(i).isHidden() ? "This achievement is hidden until you unlock it." : achievements.getAchievements().get(i).getDescription();
-        Label achievementNameLabel = new Label(achievementName);
-        Label achievementDescriptionLabel = new Label(achievementDescription);
-        achievementNameLabel.setStyle("-fx-font-weight: bold");
-
-        HBox hBox = new HBox(new VBox(achievementNameLabel,achievementDescriptionLabel));
-
-        if (achievements.getAchievements().get(i).isLocked()) {
-            achievementNameLabel.getStyleClass().add("locked-achievement-label");
-            achievementDescriptionLabel.getStyleClass().add("locked-achievement-label");
-        }
-
-        hBox.getStyleClass().add("achievement-box");
-
-        return hBox;
-    }
-
-    private String getAchievementName(int i) {
-        String achievementName;
-
-        if (achievements.getAchievements().get(i).isHidden()) {
-            achievementName = "???";
-            if (achievements.getAchievements().get(i).isLocked())
-                achievementName += " (\uD83D\uDD12)";
-        }
-        else {
-            achievementName = achievements.getAchievements().get(i).getName();
-            if (achievements.getAchievements().get(i).isLocked())
-                 achievementName += " (\uD83D\uDD12)";
-        }
-
-        return achievementName;
-    }
-
     private void setLayout(Region component, double yDiv) {
         component.layoutXProperty().bind(pane.widthProperty().subtract(component.widthProperty()).divide(2.0));
         component.layoutYProperty().bind(pane.heightProperty().subtract(component.heightProperty()).divide(yDiv));
@@ -314,6 +266,8 @@ public class GameController {
         hexChooser.setOnAction(e -> updateBackgroundColors());
 
         achievements = new Achievements();
+        vBox.setSpacing(5);
+        vBox.layoutYProperty().bind(achievementsPane.heightProperty().divide(10));
     }
 
     private void updateBackgroundColors() {
@@ -322,8 +276,8 @@ public class GameController {
         MenuController.backgroundColor = backgroundColor;
         timesBackgroundChanged++;
 
-        if (timesBackgroundChanged >= achievements.getAchievements().get(1).getThreshold() && achievements.getAchievements().get(1).isLocked()) {
-            achievements.unlockAchievement(1);
+        if (timesBackgroundChanged >= achievements.getThreshold("Personalizer") && achievements.isLocked("Personalizer")) {
+            achievements.unlock("Personalizer");
             updateAchievements();
         }
     }
@@ -521,8 +475,8 @@ public class GameController {
         if (statsPane.isVisible())
             updateStats(currentSeconds);
 
-        if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getAchievements().get(3).getThreshold() && achievements.getAchievements().get(3).isLocked()) {
-            achievements.unlockAchievement(3);
+        if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getThreshold("Grinder") && achievements.isLocked("Grinder")) {
+            achievements.unlock("Grinder");
             updateAchievements();
         }
 
@@ -530,6 +484,12 @@ public class GameController {
 
     private void startEvent() {
         eventsTriggered++;
+
+        if (eventsTriggered >= achievements.getThreshold("Event Horizon") && achievements.isLocked("Event Horizon")) {
+            achievements.unlock("Event Horizon");
+            updateAchievements();
+        }
+
         eventSecondsRemaining = 60;
 
         if (bpsNums.getValue() != 0 && random.nextInt(5) == 0)
@@ -639,7 +599,7 @@ public class GameController {
         biscuitButton.setFocusTraversable(false);
     }
 
-    @FXML private void biscuitBlitzed() {
+    @FXML private void blitzBiscuit() {
         double newX = random.nextDouble() * (pane.getWidth() - biscuitButton.getWidth());
         double newY = random.nextDouble() * (pane.getHeight() - biscuitButton.getHeight());
 
@@ -665,8 +625,8 @@ public class GameController {
 
         biscuitsBlitzed++;
 
-        if (biscuitsBlitzed >= achievements.getAchievements().get(2).getThreshold() && achievements.getAchievements().get(2).isLocked()) {
-            achievements.unlockAchievement(2);
+        if (biscuitsBlitzed >= achievements.getThreshold("Master Blitzer") && achievements.isLocked("Master Blitzer")) {
+            achievements.unlock("Master Blitzer");
             updateAchievements();
         }
     }
@@ -705,6 +665,56 @@ public class GameController {
         text.setText("Biscuits: " + formatNumber(numBiscuits));
     }
 
+    private void updateAchievements() {
+        vBox.getChildren().removeAll(vBox.getChildren());
+        for (int i = 0; i < achievements.getAchievementList().size(); i++) {
+            VBox achievement = getAchievementBox(i);
+            if (i % 4 == 0) {
+                HBox hBox = new HBox(achievement);
+                hBox.setSpacing(5);
+                vBox.getChildren().add(hBox);
+            }
+            else {
+                HBox hBox = (HBox) vBox.getChildren().get(vBox.getChildren().size() - 1);
+                hBox.getChildren().add(achievement);
+            }
+        }
+
+        vBox.layoutXProperty().bind(achievementsPane.widthProperty().subtract(vBox.widthProperty()).divide(2));
+    }
+
+    private VBox getAchievementBox(int i) {
+        String achievementName = getAchievementName(i);
+        String achievementDescription = achievements.getAchievementList().get(i).isLocked() && achievements.getAchievementList().get(i).isHidden() ? "This achievement is hidden until you unlock it" : achievements.getAchievementList().get(i).getDescription();
+        Label achievementNameLabel = new Label(achievementName);
+        Label achievementDescriptionLabel = new Label(achievementDescription);
+        achievementNameLabel.setStyle("-fx-font-weight: bold");
+
+        VBox vBox = new VBox(achievementNameLabel, achievementDescriptionLabel);
+        vBox.setPadding(new Insets(10));
+
+        if (achievements.getAchievementList().get(i).isLocked()) {
+            achievementNameLabel.getStyleClass().add("locked-achievement-label");
+            achievementDescriptionLabel.getStyleClass().add("locked-achievement-label");
+        }
+
+        vBox.setPrefWidth(achievementsPane.getWidth()/5.0);
+        vBox.getStyleClass().add("achievement-box");
+
+        return vBox;
+    }
+
+    private String getAchievementName(int i) {
+        String achievementName;
+
+        achievementName = achievements.getAchievementList().get(i).isLocked() && achievements.getAchievementList().get(i).isHidden() ? "???" : achievements.getAchievementList().get(i).getName();
+
+        if (achievements.getAchievementList().get(i).isLocked())
+            achievementName += " (\uD83D\uDD12)";
+
+        return achievementName;
+    }
+
     @FXML private void achievementsScreen() {
         updateAchievements();
         achievementsPane.setVisible(true);
@@ -733,8 +743,8 @@ public class GameController {
 
         darkModeToggleCount++;
 
-        if (darkModeToggleCount >= achievements.getAchievements().get(0).getThreshold() && achievements.getAchievements().get(0).isLocked()) {
-            achievements.unlockAchievement(0);
+        if (darkModeToggleCount >= achievements.getThreshold("Flashbang") && achievements.isLocked("Flashbang")) {
+            achievements.unlock("Flashbang");
             updateAchievements();
         }
     }

@@ -11,16 +11,41 @@ public class Achievements {
 
         achievements.add(new Achievement("Master Blitzer", "Manually blitz 1,000 biscuits", 1000, false));
         achievements.add(new Achievement("Grinder", "Have the session open for a total of 24 hours", 86400, false));
+        achievements.add(new Achievement("Event Horizon", "Trigger 10 events", 10, false));
         achievements.add(new Achievement("Flashbang", "Toggle dark mode 5 times in a second", 5, true));
-        achievements.add(new Achievement("Personalizer", "Change background color 25 times", 25, true));
+        achievements.add(new Achievement("Personalizer", "Change the background color 25 times", 25, true));
     }
 
-    public List<Achievement> getAchievements() {
+    public List<Achievement> getAchievementList() {
         return achievements;
     }
 
-    public void unlockAchievement(int index) {
-        achievements.get(index).unlock();
+    public long getThreshold(String name) {
+        for (Achievement achievement : achievements) {
+            if (achievement.getName().equals(name)) {
+                return achievement.getThreshold();
+            }
+        }
+
+        return -1;
+    }
+
+    public boolean isLocked(String name) {
+        for (Achievement achievement : achievements) {
+            if (achievement.getName().equals(name)) {
+                return achievement.isLocked();
+            }
+        }
+
+        return false;
+    }
+
+    public void unlock(String name) {
+        for (Achievement achievement : achievements) {
+            if (achievement.getName().equals(name)) {
+                achievement.unlock();
+            }
+        }
     }
 
     public static class Achievement {
