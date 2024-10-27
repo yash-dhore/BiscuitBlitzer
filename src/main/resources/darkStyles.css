@@ -50,7 +50,8 @@
 }
 
 .color-picker {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
+    -fx-border-color: #3C3C3C;
 }
 
 .color-picker .label {
@@ -58,7 +59,7 @@
 }
 
 .color-palette {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .hyperlink {
@@ -66,7 +67,7 @@
 }
 
 .custom-color-dialog {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .custom-color-dialog .label {
@@ -74,7 +75,7 @@
 }
 
 .custom-rect-pane {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .custom-rect-pane .label {
@@ -82,7 +83,7 @@
 }
 
 .controls-pane {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .controls-pane .label {
@@ -90,12 +91,13 @@
 }
 
 .toggle-button {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
     -fx-text-fill: white;
+    -fx-border-color: #3C3C3C;
 }
 
 .slider {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .slider .label {
@@ -103,11 +105,11 @@
 }
 
 .slider .track {
-    -fx-background-color: white;
+    -fx-background-color: #3C3C3C;
 }
 
 .current-new-color-grid {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .current-new-color-grid .label {
@@ -115,17 +117,19 @@
 }
 
 .customcolor-controls-background {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
 }
 
 .integer-field {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
     -fx-text-fill: white;
+    -fx-border-color: #3C3C3C;
 }
 
 .webcolor-field {
-    -fx-background-color: #1E1E1E;
+    -fx-background-color: #2C2C2C;
     -fx-text-fill: white;
+    -fx-border-color: #3C3C3C;
 }
 
 .dialog-pane {
