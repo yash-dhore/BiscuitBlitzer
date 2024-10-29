@@ -1,6 +1,7 @@
 package BiscuitBlitzer;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
@@ -69,10 +70,10 @@ public class GameController {
     private int eventsTriggered = 0;
     private int timesBackgroundChanged = 0;
 
-    private short eventMultiplier = 1;
+    private byte eventMultiplier = 1;
     private boolean spamKeyEventActive = false;
     private boolean bonusEventActive = false;
-    private short eventSecondsRemaining = 0;
+    private byte eventSecondsRemaining = 0;
     private Timeline countdownTimeline;
     private Timeline eventTimeline;
 
@@ -88,7 +89,7 @@ public class GameController {
     private File saveFile;
 
     Achievements achievements;
-    private short darkModeToggleCount = 0;
+    private byte darkModeToggleCount = 0;
     private boolean counting = false;
 
     public static String formatNumber(long number) {
@@ -278,6 +279,7 @@ public class GameController {
 
         if (timesBackgroundChanged >= achievements.getThreshold("Personalizer") && achievements.isLocked("Personalizer")) {
             achievements.unlock("Personalizer");
+            showAchievement("Personalizer");
             updateAchievements();
         }
     }
@@ -477,6 +479,7 @@ public class GameController {
 
         if ((sessionsOpenTime + currentSeconds - sessionStartTime) >= achievements.getThreshold("Grinder") && achievements.isLocked("Grinder")) {
             achievements.unlock("Grinder");
+            showAchievement("Grinder");
             updateAchievements();
         }
 
@@ -487,6 +490,7 @@ public class GameController {
 
         if (eventsTriggered >= achievements.getThreshold("Event Horizon") && achievements.isLocked("Event Horizon")) {
             achievements.unlock("Event Horizon");
+            showAchievement("Event Horizon");
             updateAchievements();
         }
 
@@ -627,6 +631,7 @@ public class GameController {
 
         if (biscuitsBlitzed >= achievements.getThreshold("Master Blitzer") && achievements.isLocked("Master Blitzer")) {
             achievements.unlock("Master Blitzer");
+            showAchievement("Master Blitzer");
             updateAchievements();
         }
     }
@@ -710,7 +715,7 @@ public class GameController {
         achievementName = achievements.getAchievementList().get(i).isLocked() && achievements.getAchievementList().get(i).isHidden() ? "???" : achievements.getAchievementList().get(i).getName();
 
         if (achievements.getAchievementList().get(i).isLocked())
-            achievementName += " (\uD83D\uDD12)";
+            achievementName += " (\uD83D\uDD12)"; // add lock emoji
 
         return achievementName;
     }
@@ -745,8 +750,24 @@ public class GameController {
 
         if (darkModeToggleCount >= achievements.getThreshold("Flashbang") && achievements.isLocked("Flashbang")) {
             achievements.unlock("Flashbang");
+            showAchievement("Flashbang");
             updateAchievements();
         }
+    }
+
+    private void showAchievement(String achievementName) {
+        Label exclamation = new Label("Achievement Unlocked!");
+        exclamation.setStyle("-fx-font-weight: bold");
+        VBox achievementPopup = new VBox(exclamation, new Label(achievementName));
+        achievementPopup.getStyleClass().add("achievement-popup");
+        pane.getChildren().add(achievementPopup);
+        achievementPopup.setTranslateX(5);
+        achievementPopup.setTranslateY(5);
+        achievementPopup.toFront();
+
+        PauseTransition hidePopup = new PauseTransition(Duration.seconds(5));
+        hidePopup.setOnFinished(e -> pane.getChildren().remove(achievementPopup));
+        hidePopup.play();
     }
 
     private void switchStylesheet() {

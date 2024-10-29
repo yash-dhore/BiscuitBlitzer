@@ -185,3 +185,12 @@
 .achievement-box {
     -fx-border-color: white;
 }
+
+.achievement-popup {
+    -fx-background-color: #2C2C2C;
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 10;
+}
