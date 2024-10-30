@@ -48,163 +48,54 @@ public class MenuController {
     @FXML private Button sortAlphaButton;
     @FXML private ScrollPane scrollPane;
 
+    // visual
     public static boolean darkMode = false;
     public static String backgroundColor = "FFFFFF";
 
+    // loading games
     private static File saveDir;
     boolean sortedReverse = false;
     boolean sortedAlphabetically = false;
     private TextInputDialog inputDialog;
 
-    public static boolean showAlert(String title, String content, Pane pane, boolean waitForResponse) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
+    @FXML private void onChooseDirButtonClick() throws IOException { java.awt.Desktop.getDesktop().open(saveDir); }
 
-        Window owner = pane.getScene().getWindow();
-        alert.initOwner(owner);
-        alert.initModality(Modality.APPLICATION_MODAL);
-
-        if (waitForResponse) {
-            return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
-        }
-        else {
-            alert.show();
-
-            PauseTransition pause = new PauseTransition(Duration.seconds(5));
-            pause.setOnFinished(event -> alert.close());
-            pause.play();
-            return true;
-        }
-    }
-
-    public void initialize() {
-        saveDir = new File(FileSystemView.getFileSystemView().getDefaultDirectory().getPath(), "BiscuitBlitzer");
-        boolean ignore = saveDir.mkdir();
-
-        if (!saveDir.exists()) {
-            System.out.println("Error: Cannot create save directory.");
-            Platform.exit();
-        }
-
-        setLogo();
-        pane.setStyle("-fx-background-color: #" + backgroundColor);
-        pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
-    }
-
-    private void setLogo() {
-        String logo;
-        if (Math.random() <= 0.01)
-            logo = "images/BiscuitBlizterLogo.png";
-        else
-            logo = "images/BiscuitBlitzerLogo.png";
-
-        imageView.setImage(new Image(String.valueOf(getClass().getResource("/" + logo))));
-    }
-
-    private void updatePositions() {
-        if (pane != null) {
-            loadPane.setVisible(false);
-
-            double paneWidth = pane.getWidth();
-            double paneHeight = pane.getHeight();
-
-            double buttonWidth = newButton.prefWidth(-1);
-            double buttonHeight = newButton.prefHeight(-1);
-
-            double centerX = paneWidth / 2 - buttonWidth / 2;
-            double centerY = paneHeight / 2 - (3 * buttonHeight / 2);
-
-            newButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
-            newButton.setLayoutX(centerX);
-            newButton.setLayoutY(centerY);
-
-            loadButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
-            loadButton.setLayoutX(centerX);
-            loadButton.setLayoutY(centerY + buttonHeight + 10);
-
-            quitButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
-            quitButton.setLayoutX(centerX);
-            quitButton.setLayoutY(centerY + 2 * (buttonHeight + 10));
-
-            imageView.setLayoutX(paneWidth / 2 - imageView.prefWidth(-1) / 2);
-            imageView.setLayoutY(paneHeight / 8);
-
-            loadPane.setStyle("-fx-background-color: #" + backgroundColor);
-            Scene scene = loadPane.getScene();
-            loadPane.prefWidthProperty().bind(scene.widthProperty());
-            loadPane.prefHeightProperty().bind(scene.heightProperty());
-
-            checkForEscapeKey();
-
-            hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2));
-            hBox.layoutYProperty().bind(loadPane.heightProperty().multiply(0).add(4));
-
-            scrollPane.setStyle("-fx-background-color: #" + backgroundColor);
-            scrollPane.setFitToWidth(true);
-            scrollPane.setFitToHeight(true);
-            scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue() - 8);
-
-            scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2));
-            scrollPane.layoutYProperty().bind(hBox.heightProperty().add(8));
-
-            vBox.setStyle("-fx-background-color: #" + backgroundColor);
-
-            inputDialog = createInputDialog(pane, "Rename selected save", "New save name:", "Rename save");
-
-            scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-                if(event.isAltDown())
-                    event.consume();
-            });
-        }
-    }
-
-    @FXML private String parseKey(String input) {
-        String playerKey;
-        try {
-            playerKey = new String(Base64.getDecoder().decode(input));
-
-            String[] numberStrings = playerKey.split(",");
-            for (int i = 0; i < 13; i++) {
-                if (i == 6 || i == 7)
-                    continue;
-
-                Long.parseLong(numberStrings[i]);
-            }
-        }
-        catch (Exception e) {
-            return "";
-        }
-
-        return playerKey;
+    @FXML private void onLoadButtonClick() {
+        sortedReverse = true;
+        sortFilesByActivity();
+        loadPane.setVisible(true);
     }
 
     @FXML private void onNewButtonClick() throws IOException { openGame("", new File("")); }
 
-    private void openGame(String playerKey, File saveFile) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/game.fxml"));
+    @FXML private void onQuitButtonClick() { Platform.exit(); }
 
-        Stage stage = (Stage) newButton.getScene().getWindow();
+    @FXML private void sortFilesAlphabetically() {
+        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
+        Arrays.sort(saveFiles);
 
-        Scene scene = new Scene(fxmlLoader.load());
+        if (!sortedReverse)
+            Arrays.sort(saveFiles, Collections.reverseOrder());
+        sortedReverse = !sortedReverse;
+        sortedAlphabetically = true;
+        findAndShowGames(saveFiles);
 
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/lightStyles.css")).toExternalForm());
-        GameController.darkMode = false;
-        GameController.backgroundColor = "FFFFFF";
+        sortAlphaButton.setEffect(new DropShadow());
+        sortActivityButton.setEffect(null);
+    }
 
-        stage.setTitle("Biscuit Blitzer");
+    @FXML private void sortFilesByActivity() {
+        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
+        Arrays.sort(saveFiles, (file1, file2) -> Long.compare(file2.lastModified(), file1.lastModified()));
 
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.setFullScreen(true);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/biscuit.png"))));
-        stage.show();
+        if (!sortedReverse)
+            Collections.reverse(Arrays.asList(saveFiles));
+        sortedReverse = !sortedReverse;
+        sortedAlphabetically = false;
+        findAndShowGames(saveFiles);
 
-        if (!playerKey.isEmpty()) {
-            GameController gameController = fxmlLoader.getController();
-            gameController.setData(playerKey, saveFile);
-        }
+        sortActivityButton.setEffect(new DropShadow());
+        sortAlphaButton.setEffect(null);
     }
 
     private void checkForEscapeKey() {
@@ -214,30 +105,6 @@ public class MenuController {
             if (event.getCode() == KeyCode.ESCAPE)
                 loadPane.setVisible(false);
         });
-    }
-
-    private String getKey(File saveFile) {
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(saveFile.toPath());
-        }
-        catch (IOException e) {
-            return "";
-        }
-
-        if (lines.size() != 1)
-            return "";
-
-        return parseKey(lines.get(0));
-    }
-
-    private void loadSave(File saveFile) throws IOException {
-        String parsedKey = getKey(saveFile);
-
-        if (parsedKey.isEmpty())
-            showAlert("Player key", "Invalid player key", pane, false);
-        else
-            openGame(parsedKey, saveFile);
     }
 
     private void findAndShowGames(File[] saveFiles) {
@@ -310,38 +177,6 @@ public class MenuController {
         }
     }
 
-    private MenuItem getRenameMenuItem(File saveFile) {
-        MenuItem menuItem = new MenuItem("Rename");
-        menuItem.setOnAction(e -> {
-            inputDialog.getEditor().clear();
-            Optional<String> fileName = inputDialog.showAndWait();
-            fileName.ifPresent(event -> {
-                String message = isValidFilename(fileName.orElse(null));
-
-                if (!message.equals("Valid filename")) {
-                    showAlert("Invalid file name", message, loadPane, false);
-                    return;
-                }
-
-                File newName = new File(saveFile.getParentFile(), fileName.orElse(null)+".txt");
-                boolean renameSuccess = saveFile.renameTo(newName);
-
-                if (!renameSuccess) {
-                    showAlert("Invalid file name", "Save with that name already exists", loadPane, false);
-                    return;
-                }
-
-                sortedReverse = !sortedReverse;
-                if (sortedAlphabetically)
-                    sortFilesAlphabetically();
-                else
-                    sortFilesByActivity();
-            });
-        });
-
-        return menuItem;
-    }
-
     private MenuItem getDeleteMenuItem(File saveFile) {
         MenuItem menuItem = new MenuItem("Delete");
         menuItem.setOnAction(e -> {
@@ -378,47 +213,186 @@ public class MenuController {
         return "Biscuits: " + numBiscuits + " | Multiplier: " + multiNums + " | BPS: " + bpsNums + " | Estimated biscuit gain: " + biscuitGain;
     }
 
-    private static BorderPane makeBorderPane(File saveFile, GridPane grid) {
-        Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
-        saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
-        BorderPane borderPane = new BorderPane();
-        borderPane.setPrefWidth(grid.getPrefWidth() + 20);
-        borderPane.setLeft(saveName);
-        return borderPane;
+    private String getKey(File saveFile) {
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(saveFile.toPath());
+        }
+        catch (IOException e) {
+            return "";
+        }
+
+        if (lines.size() != 1)
+            return "";
+
+        return parseKey(lines.get(0));
     }
 
-    @FXML private void onLoadButtonClick() {
-        sortedReverse = true;
-        sortFilesByActivity();
-        loadPane.setVisible(true);
+    private MenuItem getRenameMenuItem(File saveFile) {
+        MenuItem menuItem = new MenuItem("Rename");
+        menuItem.setOnAction(e -> {
+            inputDialog.getEditor().clear();
+            Optional<String> fileName = inputDialog.showAndWait();
+            fileName.ifPresent(event -> {
+                String message = isValidFilename(fileName.orElse(null));
+
+                if (!message.equals("Valid filename")) {
+                    showAlert("Invalid file name", message, loadPane, false);
+                    return;
+                }
+
+                File newName = new File(saveFile.getParentFile(), fileName.orElse(null)+".txt");
+                boolean renameSuccess = saveFile.renameTo(newName);
+
+                if (!renameSuccess) {
+                    showAlert("Invalid file name", "Save with that name already exists", loadPane, false);
+                    return;
+                }
+
+                sortedReverse = !sortedReverse;
+                if (sortedAlphabetically)
+                    sortFilesAlphabetically();
+                else
+                    sortFilesByActivity();
+            });
+        });
+
+        return menuItem;
     }
 
-    @FXML private void sortFilesAlphabetically() {
-        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
-        Arrays.sort(saveFiles);
+    public void initialize() {
+        saveDir = new File(FileSystemView.getFileSystemView().getDefaultDirectory().getPath(), "BiscuitBlitzer");
+        boolean ignore = saveDir.mkdir();
 
-        if (!sortedReverse)
-            Arrays.sort(saveFiles, Collections.reverseOrder());
-        sortedReverse = !sortedReverse;
-        sortedAlphabetically = true;
-        findAndShowGames(saveFiles);
+        if (!saveDir.exists()) {
+            System.out.println("Error: Cannot create save directory.");
+            Platform.exit();
+        }
 
-        sortAlphaButton.setEffect(new DropShadow());
-        sortActivityButton.setEffect(null);
+        setLogo();
+        pane.setStyle("-fx-background-color: #" + backgroundColor);
+        pane.heightProperty().addListener((observable, oldValue, newValue) -> updatePositions());
     }
 
-    @FXML private void sortFilesByActivity() {
-        File[] saveFiles = Objects.requireNonNull(saveDir.listFiles(file -> file.isFile() && file.getName().endsWith(".txt")));
-        Arrays.sort(saveFiles, (file1, file2) -> Long.compare(file2.lastModified(), file1.lastModified()));
+    private void loadSave(File saveFile) throws IOException {
+        String parsedKey = getKey(saveFile);
 
-        if (!sortedReverse)
-            Collections.reverse(Arrays.asList(saveFiles));
-        sortedReverse = !sortedReverse;
-        sortedAlphabetically = false;
-        findAndShowGames(saveFiles);
+        if (parsedKey.isEmpty())
+            showAlert("Player key", "Invalid player key", pane, false);
+        else
+            openGame(parsedKey, saveFile);
+    }
 
-        sortActivityButton.setEffect(new DropShadow());
-        sortAlphaButton.setEffect(null);
+    private void openGame(String playerKey, File saveFile) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/game.fxml"));
+
+        Stage stage = (Stage) newButton.getScene().getWindow();
+
+        Scene scene = new Scene(fxmlLoader.load());
+
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/lightStyles.css")).toExternalForm());
+        GameController.darkMode = false;
+        GameController.backgroundColor = "FFFFFF";
+
+        stage.setTitle("Biscuit Blitzer");
+
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.setFullScreen(true);
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/biscuit.png"))));
+        stage.show();
+
+        if (!playerKey.isEmpty()) {
+            GameController gameController = fxmlLoader.getController();
+            gameController.setData(playerKey, saveFile);
+        }
+    }
+
+    private String parseKey(String input) {
+        String playerKey;
+        try {
+            playerKey = new String(Base64.getDecoder().decode(input));
+
+            String[] numberStrings = playerKey.split(",");
+            for (int i = 0; i < 13; i++) {
+                if (i == 6 || i == 7)
+                    continue;
+
+                Long.parseLong(numberStrings[i]);
+            }
+        }
+        catch (Exception e) {
+            return "";
+        }
+
+        return playerKey;
+    }
+
+    private void setLogo() {
+        String logo;
+        if (Math.random() <= 0.01)
+            logo = "images/BiscuitBlizterLogo.png";
+        else
+            logo = "images/BiscuitBlitzerLogo.png";
+
+        imageView.setImage(new Image(String.valueOf(getClass().getResource("/" + logo))));
+    }
+
+    private void updatePositions() {
+        if (pane != null) {
+            loadPane.setVisible(false);
+
+            double paneWidth = pane.getWidth();
+            double paneHeight = pane.getHeight();
+
+            double buttonWidth = newButton.prefWidth(-1);
+            double buttonHeight = newButton.prefHeight(-1);
+
+            double centerX = paneWidth / 2 - buttonWidth / 2;
+            double centerY = paneHeight / 2 - (3 * buttonHeight / 2);
+
+            newButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
+            newButton.setLayoutX(centerX);
+            newButton.setLayoutY(centerY);
+
+            loadButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
+            loadButton.setLayoutX(centerX);
+            loadButton.setLayoutY(centerY + buttonHeight + 10);
+
+            quitButton.prefWidthProperty().bind(pane.widthProperty().divide(7.5));
+            quitButton.setLayoutX(centerX);
+            quitButton.setLayoutY(centerY + 2 * (buttonHeight + 10));
+
+            imageView.setLayoutX(paneWidth / 2 - imageView.prefWidth(-1) / 2);
+            imageView.setLayoutY(paneHeight / 8);
+
+            loadPane.setStyle("-fx-background-color: #" + backgroundColor);
+            Scene scene = loadPane.getScene();
+            loadPane.prefWidthProperty().bind(scene.widthProperty());
+            loadPane.prefHeightProperty().bind(scene.heightProperty());
+
+            checkForEscapeKey();
+
+            hBox.layoutXProperty().bind(loadPane.widthProperty().subtract(hBox.widthProperty()).divide(2));
+            hBox.layoutYProperty().bind(loadPane.heightProperty().multiply(0).add(4));
+
+            scrollPane.setStyle("-fx-background-color: #" + backgroundColor);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setPrefHeight(pane.getHeight() - hBox.heightProperty().getValue() - 8);
+
+            scrollPane.layoutXProperty().bind(pane.widthProperty().subtract(scrollPane.widthProperty()).divide(2));
+            scrollPane.layoutYProperty().bind(hBox.heightProperty().add(8));
+
+            vBox.setStyle("-fx-background-color: #" + backgroundColor);
+
+            inputDialog = createInputDialog(pane, "Rename selected save", "New save name:", "Rename save");
+
+            scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+                if(event.isAltDown())
+                    event.consume();
+            });
+        }
     }
 
     public static TextInputDialog createInputDialog(Pane pane, String headerText, String contentText, String titleText) {
@@ -465,7 +439,35 @@ public class MenuController {
         return "Valid filename";
     }
 
-    @FXML private void onChooseDirButtonClick() throws IOException { java.awt.Desktop.getDesktop().open(saveDir); }
+    private static BorderPane makeBorderPane(File saveFile, GridPane grid) {
+        Label saveName = new Label(saveFile.getName().replaceFirst("[.][^.]+$", ""));
+        saveName.setStyle("-fx-font-size: 24; -fx-font-weight: bold");
+        BorderPane borderPane = new BorderPane();
+        borderPane.setPrefWidth(grid.getPrefWidth() + 20);
+        borderPane.setLeft(saveName);
+        return borderPane;
+    }
 
-    @FXML private void onQuitButtonClick() { Platform.exit(); }
+    public static boolean showAlert(String title, String content, Pane pane, boolean waitForResponse) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+
+        Window owner = pane.getScene().getWindow();
+        alert.initOwner(owner);
+        alert.initModality(Modality.APPLICATION_MODAL);
+
+        if (waitForResponse) {
+            return alert.showAndWait().map(response -> response == ButtonType.OK).orElse(false);
+        }
+        else {
+            alert.show();
+
+            PauseTransition pause = new PauseTransition(Duration.seconds(5));
+            pause.setOnFinished(event -> alert.close());
+            pause.play();
+            return true;
+        }
+    }
 }

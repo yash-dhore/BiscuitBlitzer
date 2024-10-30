@@ -624,6 +624,8 @@ public class GameController {
             startPhaseEvent();
         else if (randomInt < 8)
             startSpamKeyEvent();
+        else if (randomInt < 13)
+            startQuintupleEvent();
         else if (bpsNums.getValue() != 0 && random.nextInt(48) == 47)
             startBonusEvent();
         else
@@ -673,6 +675,13 @@ public class GameController {
         );
         eventTimeline.setCycleCount(1);
         eventTimeline.play();
+    }
+
+    private void startQuintupleEvent() {
+        startTheEvent(1, "5x biscuit",
+                "You get QUINTUPLE the biscuits for the next minute!");
+
+        eventMultiplier = 5;
     }
 
     private void switchStylesheet() {
