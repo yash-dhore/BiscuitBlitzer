@@ -10,14 +10,14 @@ I initially started this project as a remake of my [AP CSA Final Project](https:
 
 - **Idle Mechanics**: Let your biscuit blitz even when you’re not playing!
 - **Upgrades**: Purchase upgrades to increase your biscuit blitzing capabilities.
-- **Dynamic Events**: Participate in special events that temporarily boost your biscuit blitzing. 
+- **Dynamic Events**: Participate in special events that temporarily boost your biscuit blitzing.
+- **Achievements**: Unlock milestones and hidden secrets as you play!
 - **Statistics Tracking**: Monitor your progress with detailed statistics.
 
 ## Future Plans
-
 I’m working on enhancing the game. Upcoming features include:
-- Achievements
 - Graphical improvements
+- More ways to upgrade your biscuit-blitzing empire
 - And more!
 
 ## Getting Started
