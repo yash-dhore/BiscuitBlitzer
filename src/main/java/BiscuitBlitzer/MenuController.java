@@ -294,7 +294,7 @@ public class MenuController {
         GameController.darkMode = false;
         GameController.backgroundColor = "FFFFFF";
 
-        stage.setTitle("Biscuit Blitzer");
+        stage.setTitle("Biscuit Blitzer V" + BiscuitBlitzer.getGameVersion());
 
         stage.setScene(scene);
         stage.setResizable(false);
