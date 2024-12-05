@@ -20,13 +20,13 @@ I’m working on enhancing the game. Upcoming features include:
 - More ways to upgrade your biscuit-blitzing empire
 - And more!
 
-**Earn passive income!**
+**Earn passive income!**__
 ![passiveIncome](docs/passiveIncome.png)
 
-**Customize your game!**
+**Customize your game!**__
 ![customize](docs/customize.png)
 
-**Save your games!**
+**Save your games!**__
 ![saveGames](docs/saveGames.png)
 
 ## Getting Started
