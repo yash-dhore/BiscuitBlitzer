@@ -14,12 +14,6 @@ I initially started this project as a remake of my [AP CSA Final Project](https:
 - **Achievements**: Unlock milestones and hidden secrets as you play!
 - **Statistics Tracking**: Monitor your progress with detailed statistics.
 
-## Future Plans
-I’m working on enhancing the game. Upcoming features include:
-- Graphical improvements
-- More ways to upgrade your biscuit-blitzing empire
-- And more!
-
 **Earn passive income!**  
 ![passiveIncome](docs/passiveIncome.png)
 
@@ -28,6 +22,12 @@ I’m working on enhancing the game. Upcoming features include:
 
 **Save your games!**  
 ![saveGames](docs/saveGames.png)
+
+## Future Plans
+I’m working on enhancing the game. Upcoming features include:
+- Graphical improvements
+- More ways to upgrade your biscuit-blitzing empire
+- And more!
 
 ## Getting Started
 
